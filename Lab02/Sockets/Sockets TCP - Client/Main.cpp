@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 	SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
 	if (s == INVALID_SOCKET)
 	{
-		PrintWSErrorAndExit("Can't create UDP socket.");
+		PrintWSErrorAndExit("Can't create TCP socket.");
 	}
 
 	struct sockaddr_in remoteAddr;

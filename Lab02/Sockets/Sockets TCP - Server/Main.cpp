@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 	SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
 	if (s == INVALID_SOCKET)
 	{
-		PrintWSErrorAndExit("Can't create UDP socket.");
+		PrintWSErrorAndExit("Can't create TCP socket.");
 	}
 
 	struct sockaddr_in bindAddr;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 		PrintWSErrorAndExit("Can't set socket options.");
 	}
 
-	iResult = bind(s, (const struct sockaddr*)&bindAddr, sizeof(bindAddr));
+	iResult = bind(s, (const sockaddr*)&bindAddr, sizeof(bindAddr));
 	if (iResult == SOCKET_ERROR)
 	{
 		PrintWSErrorAndExit("Can't bind socket.");
@@ -92,18 +92,20 @@ int main(int argc, char* argv[])
 		{
 			PrintWSErrorAndExit("Can't receive data.");
 		}
+		else if (iResult == NULL) // No messages available: exit loop
+		{
+			break;
+		}
 
 		std::cout << buffer << std::endl;
 
 		memcpy(&buffer, "pong", buffer_len);
 
-		iResult = send(s, buffer, buffer_len, 0);
+		iResult = send(cs, buffer, buffer_len, 0);
 		if (iResult == SOCKET_ERROR)
 		{
 			PrintWSErrorAndExit("Can't send data.");
 		}
-
-		Sleep(500);
 	}
 
 	// -----------------------------------------------------------
