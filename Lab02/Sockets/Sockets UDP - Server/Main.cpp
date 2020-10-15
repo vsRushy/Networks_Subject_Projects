@@ -97,13 +97,13 @@ int main(int argc, char* argv[])
 	// -----------------------------------------------------------
 
 	// Cleanup
-	shutdown(s, SD_BOTH);
+	iResult = shutdown(s, SD_BOTH);
 	if (iResult == SOCKET_ERROR)
 	{
 		PrintWSErrorAndExit("Can't shutdown socket.");
 	}
 
-	closesocket(s);
+	iResult = closesocket(s);
 	if (iResult == SOCKET_ERROR)
 	{
 		PrintWSErrorAndExit("Can't close socket.");
