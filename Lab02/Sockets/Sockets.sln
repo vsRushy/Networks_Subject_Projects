@@ -11,6 +11,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sockets TCP - Client", "Soc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sockets TCP - Server", "Sockets TCP - Server\Sockets TCP - Server.vcxproj", "{2118C4D2-9099-47EA-9433-9674E5E05DC0}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E0E8C9BE-AEF7-4C8E-88D4-1482AA7F207C}"
+	ProjectSection(SolutionItems) = preProject
+		helper.h = helper.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
