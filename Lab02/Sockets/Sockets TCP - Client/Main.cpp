@@ -8,10 +8,6 @@
 #define IP "127.0.0.1"
 #define PORT 8000
 
-#include <iostream>
-#include <Windows.h>
-#include <WinSock2.h>
-#include <WS2tcpip.h>
 #include "..\helper.h"
 
 int main(int argc, char* argv[])
@@ -51,12 +47,15 @@ int main(int argc, char* argv[])
 	{
 		memcpy(&buffer, "ping", buffer_len);
 
+		// Send to server
 		iResult = send(s, buffer, buffer_len, 0);
 		if (iResult == SOCKET_ERROR)
 		{
 			PrintWSErrorAndExit("Can't send data.");
 		}
 
+
+		// receive from server
 		iResult = recv(s, buffer, buffer_len, 0);
 		if (iResult == SOCKET_ERROR)
 		{
@@ -71,23 +70,7 @@ int main(int argc, char* argv[])
 	// -----------------------------------------------------------
 
 	// Cleanup
-	iResult = shutdown(s, SD_BOTH);
-	if (iResult == SOCKET_ERROR)
-	{
-		PrintWSErrorAndExit("Can't shutdown socket.");
-	}
-
-	iResult = closesocket(s);
-	if (iResult == SOCKET_ERROR)
-	{
-		PrintWSErrorAndExit("Can't close socket.");
-	}
-
-	iResult = WSACleanup();
-	if (iResult != NO_ERROR)
-	{
-		PrintWSErrorAndExit("Can't cleanup sockets library.");
-	}
+	CleanUpSockets(s, &iResult);
 
 	return 0;
 }
