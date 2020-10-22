@@ -24,7 +24,7 @@ bool ModuleNetworkingServer::start(int port)
 	}
 
 	int enable = 1;
-	if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)enable, sizeof(enable)) == SOCKET_ERROR)
+	if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(int)) == SOCKET_ERROR)
 	{
 		reportError("Can't set socket options.");
 		return false;

@@ -12,6 +12,26 @@ bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPor
 	// - Add the created socket to the managed list of sockets using addSocket()
 
 	// If everything was ok... change the state
+
+	s = socket(AF_INET, SOCK_STREAM, 0);
+	if (s == INVALID_SOCKET)
+	{
+		reportError("Can't create socket.");
+		return false;
+	}
+
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_port = htons(serverPort);
+	inet_pton(AF_INET, serverAddressStr, &serverAddress.sin_addr);
+
+	if (connect(s, (const sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
+	{
+		reportError("Can't connect.");
+		return false;
+	}
+
+	addSocket(s);
+
 	state = ClientState::Start;
 
 	return true;
@@ -27,6 +47,10 @@ bool ModuleNetworkingClient::update()
 	if (state == ClientState::Start)
 	{
 		// TODO(jesus): Send the player name to the server
+		if (send(s, playerName.c_str(), sizeof(playerName.c_str()), 0))
+		{
+			state = ClientState::Logging;
+		}
 	}
 
 	return true;
