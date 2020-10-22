@@ -108,13 +108,43 @@ bool ModuleNetworking::preUpdate()
 		{
 			if (isListenSocket(s))
 			{
-				//SOCKET connectedSocket = accept();
+				sockaddr_in remoteAddress;
+				int remoteAddressSize = sizeof(remoteAddress);
+				SOCKET connectedSocket = accept(s, (sockaddr*)&remoteAddress, &remoteAddressSize);
+
+				if (connectedSocket == INVALID_SOCKET)
+				{
+					reportError("Can't accept connected socket.");
+				}
+				else
+				{
+					onSocketConnected(s, (const sockaddr_in)remoteAddress);
+					addSocket(connectedSocket);
+				}
 			}
 			else
 			{
-
+				char buffer[256];
+				int buffer_size = sizeof(buffer);
+				int iResult = recv(s, buffer, buffer_size, 0);
+				if (iResult == SOCKET_ERROR || iResult == 0)
+				{
+					reportError("Can't receive.");
+					onSocketDisconnected(s);
+					disconnectedSockets.push_back(s);
+				}
+				else
+				{
+					onSocketReceivedData(s, (byte*)buffer);
+				}
 			}
 		}
+	}
+
+	for (auto s : disconnectedSockets)
+	{
+		onSocketDisconnected(s);
+		sockets.erase(std::find(sockets.begin(), sockets.end(), s));
 	}
 
 	return true;
