@@ -16,6 +16,40 @@ bool ModuleNetworkingServer::start(int port)
 	// - Enter in listen mode
 	// - Add the listenSocket to the managed list of sockets using addSocket()
 
+	listenSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (listenSocket == INVALID_SOCKET)
+	{
+		reportError("Can't create socket.");
+		return false;
+	}
+
+	int enable = 1;
+	if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)enable, sizeof(enable)) == SOCKET_ERROR)
+	{
+		reportError("Can't set socket options.");
+		return false;
+	}
+
+	sockaddr_in address;
+	address.sin_family = AF_INET;
+	address.sin_port = htons(port);
+	address.sin_addr.S_un.S_addr = ADDR_ANY;
+
+	if (bind(listenSocket, (const sockaddr*)&address, sizeof(address)) == SOCKET_ERROR)
+	{
+		reportError("Can't bind socket.");
+		return false;
+	}
+
+	int simultaneousConnections = 5;
+	if (listen(listenSocket, simultaneousConnections) == SOCKET_ERROR)
+	{
+		reportError("Socket can't listen.");
+		return false;
+	}
+
+	addSocket(listenSocket);
+
 	state = ServerState::Listening;
 
 	return true;

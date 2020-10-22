@@ -55,7 +55,7 @@ private:
 	ServerState state = ServerState::Stopped;
 
 	SOCKET listenSocket;
-
+	
 	struct ConnectedSocket
 	{
 		sockaddr_in address;
