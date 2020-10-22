@@ -1,10 +1,9 @@
 #include "Networks.h"
 #include "ModuleNetworking.h"
 
+#include <list>
 
 static uint8 NumModulesUsingWinsock = 0;
-
-
 
 void ModuleNetworking::reportError(const char* inOperationDesc)
 {
@@ -81,6 +80,42 @@ bool ModuleNetworking::preUpdate()
 
 	// TODO(jesus): Finally, remove all disconnected sockets from the list
 	// of managed sockets.
+
+	fd_set readSet;
+	FD_ZERO(&readSet);
+
+	for (auto s : sockets)
+	{
+		FD_SET(s, &readSet);
+	}
+
+	struct timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+
+	int res = select(0, &readSet, nullptr, nullptr, &timeout);
+	if (res == SOCKET_ERROR)
+	{
+		reportError("Can't select.");
+		return false;
+	}
+
+	std::list<SOCKET> disconnectedSockets;
+
+	for (auto s : sockets)
+	{
+		if (FD_ISSET(s, &readSet))
+		{
+			if (isListenSocket(s))
+			{
+				//SOCKET connectedSocket = accept();
+			}
+			else
+			{
+
+			}
+		}
+	}
 
 	return true;
 }
