@@ -80,7 +80,7 @@ struct WindowStruct
 	int height = 0;
 };
 
-// NOTE(jesus): Global object to access window dimensions
+// NOTE(jesus): Global objet to access window dimensions
 extern WindowStruct Window;
 
 

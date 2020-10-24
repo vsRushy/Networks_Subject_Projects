@@ -1,5 +1,15 @@
-#include "ModuleNetworkingClient.h"
+/* Sockets TCP - Client */
 
+#pragma comment (lib, "ws2_32.lib")
+
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+
+#define IP "127.0.0.1"
+#define PORT 8000
+
+#include "helper.h"
+#define MAX_SIMUL_CONNECTIONS 100
 
 bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPort, const char *pplayerName)
 {
@@ -12,25 +22,37 @@ bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPor
 	// - Add the created socket to the managed list of sockets using addSocket()
 
 	// If everything was ok... change the state
+	// Initialization
 
-	s = socket(AF_INET, SOCK_STREAM, 0);
-	if (s == INVALID_SOCKET)
+	WSADATA wsaData;
+	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult == SOCKET_ERROR)
 	{
-		reportError("Can't create socket.");
-		return false;
+		PrintWSErrorAndExit("Can't initialize sockets library.");
 	}
 
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port = htons(serverPort);
-	inet_pton(AF_INET, serverAddressStr, &serverAddress.sin_addr);
+	// -----------------------------------------------------------
 
-	if (connect(s, (const sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
+
+	ModuleNetworkingClient::socket = ::socket(AF_INET, SOCK_STREAM, 0);
+	if (ModuleNetworkingClient::socket == INVALID_SOCKET)
 	{
-		reportError("Can't connect.");
-		return false;
+		PrintWSErrorAndExit("Can't create TCP socket.");
 	}
 
-	addSocket(s);
+	struct sockaddr_in remoteAddr;
+	remoteAddr.sin_family = AF_INET;
+	remoteAddr.sin_port = htons(PORT);
+	const char* remoteAddrStr = IP;
+	inet_pton(AF_INET, remoteAddrStr, &remoteAddr.sin_addr);
+
+	iResult = connect(ModuleNetworkingClient::socket, (const sockaddr*)&remoteAddr, sizeof(remoteAddr));
+	if (iResult == SOCKET_ERROR)
+	{
+		PrintWSErrorAndExit("Can't connect socket.");
+	}
+
+	addSocket(ModuleNetworkingClient::socket);
 
 	state = ClientState::Start;
 
@@ -47,10 +69,12 @@ bool ModuleNetworkingClient::update()
 	if (state == ClientState::Start)
 	{
 		// TODO(jesus): Send the player name to the server
-		if (send(s, playerName.c_str(), sizeof(playerName.c_str()), 0))
+
+		if ((send(ModuleNetworkingClient::socket, playerName.c_str(), playerName.length(), 0)) == SOCKET_ERROR)
 		{
-			state = ClientState::Logging;
+			PrintWSErrorAndExit("Can't connect socket.");
 		}
+
 	}
 
 	return true;
