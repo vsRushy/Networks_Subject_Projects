@@ -118,24 +118,23 @@ bool ModuleNetworking::preUpdate()
 				}
 				else
 				{
-					onSocketConnected(s, (const sockaddr_in)remoteAddress);
+					onSocketConnected(connectedSocket, (const sockaddr_in)remoteAddress);
 					addSocket(connectedSocket);
 				}
 			}
 			else
 			{
-				char buffer[256];
-				int buffer_size = sizeof(buffer);
-				int iResult = recv(s, buffer, buffer_size, 0);
+				char buffer[1024] = { 0 };
+				int iResult = recv(s, buffer, 1024, 0);
 				if (iResult == SOCKET_ERROR || iResult == 0)
 				{
 					reportError("Can't receive.");
-					onSocketDisconnected(s);
+					//onSocketDisconnected(s); needed???
 					disconnectedSockets.push_back(s);
 				}
 				else
 				{
-					onSocketReceivedData(s, (byte*)buffer);
+					onSocketReceivedData(s, (byte*)&buffer);
 				}
 			}
 		}
