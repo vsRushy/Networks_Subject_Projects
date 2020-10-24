@@ -1,10 +1,9 @@
 #include "Networks.h"
 #include "ModuleNetworking.h"
 #include <list>
+#include "Helper.h"
 
 static uint8 NumModulesUsingWinsock = 0;
-
-
 
 void ModuleNetworking::reportError(const char* inOperationDesc)
 {
@@ -95,11 +94,38 @@ bool ModuleNetworking::preUpdate()
 	for (auto s : sockets)
 	{
 		if (FD_ISSET(s, &readfds)) {
-			if (s == serverSocket) { // Is the server socket
+			if (isListenSocket(s)) { // Is the server socket
 			// Accept stuff
+
+				sockaddr_in remoteAddr;
+				int remote_size = sizeof(remoteAddr);
+				SOCKET cs = accept(s, (sockaddr*)&remoteAddr, &remote_size);
+				if (cs == INVALID_SOCKET)
+					PrintWSErrorAndExit("Can't accept socket.");
+				
+
+				else
+				{
+					onSocketConnected(s, remoteAddr);
+					addSocket(s);
+				}
 			}
 			else { // Is a client socket
 		 // Recv stuff
+				char buffer[256];
+				int buffer_len = sizeof(buffer);
+				int iResult = recv(s, buffer, buffer_len, 0);
+
+				if ((iResult == SOCKET_ERROR) || (iResult == 0))
+				{
+					PrintWSErrorAndExit("Disonnected socket!");
+					disconnectedSockets.push_back(s);
+				}
+				
+				else
+					onSocketReceivedData(s, (byte*)buffer);
+
+
 			}
 		}
 	}
@@ -112,6 +138,13 @@ bool ModuleNetworking::preUpdate()
 
 	// TODO(jesus): Finally, remove all disconnected sockets from the list
 	// of managed sockets.
+
+	for (auto s : disconnectedSockets)
+	{
+		onSocketDisconnected(s);
+		sockets.erase(std::remove(sockets.begin(), sockets.end(), s), sockets.end());
+	}
+		
 
 
 
