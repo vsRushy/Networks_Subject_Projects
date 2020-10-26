@@ -47,7 +47,11 @@ bool ModuleNetworkingClient::update()
 	if (state == ClientState::Start)
 	{
 		// TODO(jesus): Send the player name to the server
-		if (send(s, playerName.c_str(), playerName.size() + 1, 0))
+		if (send(s, (playerName + '\0').c_str(), playerName.size() + 1, 0))
+		{
+			reportError("Can't send.");
+		}
+		else
 		{
 			state = ClientState::Logging;
 		}

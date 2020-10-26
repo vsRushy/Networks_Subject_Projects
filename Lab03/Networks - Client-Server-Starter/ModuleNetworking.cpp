@@ -124,17 +124,16 @@ bool ModuleNetworking::preUpdate()
 			}
 			else
 			{
-				char buffer[1024] = { 0 };
-				int iResult = recv(s, buffer, 1024, 0);
+				memset(incomingDataBuffer, '\0', incomingDataBufferSize);
+				int iResult = recv(s, (char*)incomingDataBuffer, incomingDataBufferSize, 0);
 				if (iResult == SOCKET_ERROR || iResult == 0)
 				{
 					reportError("Can't receive.");
-					//onSocketDisconnected(s); needed???
 					disconnectedSockets.push_back(s);
 				}
 				else
 				{
-					onSocketReceivedData(s, (byte*)&buffer);
+					onSocketReceivedData(s, incomingDataBuffer);
 				}
 			}
 		}
