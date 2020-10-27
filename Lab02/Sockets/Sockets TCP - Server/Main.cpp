@@ -8,9 +8,6 @@
 #define PORT 8000
 
 #include "..\helper.h"
-#include <vector>
-
-static std::vector<sockaddr_in> receivedCalls;
 
 int main(int argc, char* argv[])
 {
@@ -30,8 +27,8 @@ int main(int argc, char* argv[])
 		PrintWSErrorAndExit("Can't create TCP socket.");
 	}
 
-	sockaddr_in bindAddr;
-    bindAddr.sin_family = AF_INET;
+	struct sockaddr_in bindAddr;
+	bindAddr.sin_family = AF_INET;
 	bindAddr.sin_port = htons(PORT);
 	bindAddr.sin_addr.S_un.S_addr = INADDR_ANY;
 
@@ -56,47 +53,36 @@ int main(int argc, char* argv[])
 	}
 
 	sockaddr_in remoteAddr;
-	receivedCalls.push_back(remoteAddr);
+	int remote_size = sizeof(remoteAddr);
+	SOCKET cs = accept(s, (sockaddr*)&remoteAddr, &remote_size);
+	if (cs == INVALID_SOCKET)
+	{
+		PrintWSErrorAndExit("Can't accept socket.");
+	}
 
-
+	char buffer[5];
+	int buffer_len = 5 * sizeof(char);
 	while (true)
 	{
-		for (int i = 0; i < receivedCalls.size(); ++i)
+		iResult = recv(cs, buffer, buffer_len, 0);
+		if (iResult == SOCKET_ERROR)
 		{
-			int remote_size = sizeof(receivedCalls.at(i));
-			SOCKET cs = accept(s, (sockaddr*)&receivedCalls.at(i), &remote_size);
-
-
-			if (cs == INVALID_SOCKET)
-			{
-				PrintWSErrorAndExit("Can't accept socket.");
-				continue;
-			}
-
-			char buffer[5];
-			int buffer_len = 5 * sizeof(char);
-
-			iResult = recv(cs, buffer, buffer_len, 0);
-			if (iResult == SOCKET_ERROR)
-			{
-				PrintWSErrorAndExit("Can't receive data.");
-			}
-			else if (iResult == NULL) // No messages available: exit loop
-			{
-				break;
-			}
-
-			std::cout << buffer << std::endl;
-
-			memcpy(&buffer, "pong", buffer_len);
-
-			iResult = send(cs, buffer, buffer_len, 0);
-			if (iResult == SOCKET_ERROR)
-			{
-				PrintWSErrorAndExit("Can't send data.");
-			}
+			PrintWSErrorAndExit("Can't receive data.");
 		}
-	
+		else if (iResult == NULL) // No messages available: exit loop
+		{
+			break;
+		}
+
+		std::cout << buffer << std::endl;
+
+		memcpy(&buffer, "pong", buffer_len);
+
+		iResult = send(cs, buffer, buffer_len, 0);
+		if (iResult == SOCKET_ERROR)
+		{
+			PrintWSErrorAndExit("Can't send data.");
+		}
 	}
 
 	// -----------------------------------------------------------
