@@ -17,7 +17,9 @@ constexpr Endianness PLATFORM_ENDIANNESS = Endianness::LittleEndian;
 // Minimum IP and TCP header sizes are 20 bytes each
 //constexpr uint32 DEFAULT_STREAM_SIZE = 1460;
 
-// PACKET_SIZE is defined in Networks.h
+// PACKET_SIZE is defined in Networks.h --> circular dependency!! 
+#define Kilobytes(x) (1024L * x)
+#define PACKET_SIZE        Kilobytes(4)
 constexpr uint32 DEFAULT_STREAM_SIZE = PACKET_SIZE;
 
 class OutputMemoryStream

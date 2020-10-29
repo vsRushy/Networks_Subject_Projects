@@ -170,3 +170,15 @@ void ModuleNetworking::addSocket(SOCKET socket)
 {
 	sockets.push_back(socket);
 }
+
+bool ModuleNetworking::sendPacket(const OutputMemoryStream& packet, SOCKET socket)
+{
+	int result = send(socket, packet.GetBufferPtr(), packet.GetSize(), 0);
+	
+	if (result == SOCKET_ERROR)
+	{
+		reportError("send"); return false;
+	}
+return true;
+	}
+

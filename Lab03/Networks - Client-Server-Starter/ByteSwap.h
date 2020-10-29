@@ -2,12 +2,14 @@
 
 
 // Swap a word of 2 bytes
+typedef unsigned short int uint16;
 inline uint16 ByteSwap2(uint16 inData)
 {
 	return (inData >> 8) | (inData << 8);
 }
 
 // Swap a word of 4 bytes
+typedef unsigned long int uint32;
 inline uint32 ByteSwap4(uint32 inData)
 {
 	return (

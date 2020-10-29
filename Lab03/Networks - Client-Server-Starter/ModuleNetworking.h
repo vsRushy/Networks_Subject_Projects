@@ -29,7 +29,7 @@ private:
 
 	virtual void onSocketDisconnected(SOCKET s) = 0;
 
-
+	static bool sendPacket(const OutputMemoryStream& packet, SOCKET socket);
 
 protected:
 
