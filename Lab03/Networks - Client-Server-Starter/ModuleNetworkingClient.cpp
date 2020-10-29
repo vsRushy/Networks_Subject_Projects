@@ -47,13 +47,18 @@ bool ModuleNetworkingClient::update()
 	if (state == ClientState::Start)
 	{
 		// TODO(jesus): Send the player name to the server
-		if (send(s, (playerName + '\0').c_str(), playerName.size() + 1, 0) == SOCKET_ERROR)
+		OutputMemoryStream packet;
+		packet << ClientMessage::Hello;
+		packet << playerName;
+
+		if (sendPacket(packet, s))
 		{
-			reportError("Can't send.");
+			state = ClientState::Logging;
 		}
 		else
 		{
-			state = ClientState::Logging;
+			disconnect();
+			state = ClientState::Stopped;
 		}
 	}
 
@@ -79,7 +84,7 @@ bool ModuleNetworkingClient::gui()
 	return true;
 }
 
-void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, byte * data)
+void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet)
 {
 	state = ClientState::Stopped;
 }

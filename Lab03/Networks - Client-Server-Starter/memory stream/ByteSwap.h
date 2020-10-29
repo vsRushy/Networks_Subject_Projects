@@ -1,5 +1,8 @@
 #pragma once
 
+typedef unsigned short uint16;
+typedef unsigned long uint32;
+typedef unsigned long long uint64_t;
 
 // Swap a word of 2 bytes
 inline uint16 ByteSwap2(uint16 inData)

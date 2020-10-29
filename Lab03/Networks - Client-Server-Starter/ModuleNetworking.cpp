@@ -23,6 +23,19 @@ void ModuleNetworking::reportError(const char* inOperationDesc)
 	ELOG("Error %s: %d- %s", inOperationDesc, errorNum, lpMsgBuf);
 }
 
+bool ModuleNetworking::sendPacket(const OutputMemoryStream& packet, SOCKET socket)
+{
+	int result = send(socket, packet.GetBufferPtr(), packet.GetSize(), 0);
+	if(result == SOCKET_ERROR)
+	{
+		reportError("Can't send.");
+		
+		return false;
+	}
+
+	return true;
+}
+
 void ModuleNetworking::disconnect()
 {
 	for (SOCKET socket : sockets)
@@ -124,16 +137,22 @@ bool ModuleNetworking::preUpdate()
 			}
 			else
 			{
-				memset(incomingDataBuffer, '\0', incomingDataBufferSize);
-				int iResult = recv(s, (char*)incomingDataBuffer, incomingDataBufferSize, 0);
-				if (iResult == SOCKET_ERROR || iResult == 0)
+				InputMemoryStream packet;
+				int iResult = recv(s, packet.GetBufferPtr(), packet.GetCapacity(), 0);
+
+				if (iResult == SOCKET_ERROR)
 				{
 					reportError("Can't receive.");
 					disconnectedSockets.push_back(s);
 				}
+				else if (iResult == 0)
+				{
+					disconnectedSockets.push_back(s);
+				}
 				else
 				{
-					onSocketReceivedData(s, incomingDataBuffer);
+					packet.SetSize(static_cast<uint32>(iResult));
+					onSocketReceivedData(s, packet);
 				}
 			}
 		}
