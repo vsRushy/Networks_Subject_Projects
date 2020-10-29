@@ -6,7 +6,7 @@ void OutputMemoryStream::Write(const void *inData, size_t inByteCount)
 	const uint32 resultHead = mHead + static_cast<uint32>(inByteCount);
 	if (resultHead > mCapacity)
 	{
-		ReallocBuffer(std::max(mCapacity * 2, resultHead));
+		ReallocBuffer(max(mCapacity * 2, resultHead));
 	}
 
 	// Copy into buffer at head
