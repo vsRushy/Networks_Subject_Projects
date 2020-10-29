@@ -124,17 +124,21 @@ bool ModuleNetworking::preUpdate()
 			}
 			else
 			{
-				memset(incomingDataBuffer, '\0', incomingDataBufferSize);
-				int iResult = recv(s, (char*)incomingDataBuffer, incomingDataBufferSize, 0);
-				if (iResult == SOCKET_ERROR || iResult == 0)
+				InputMemoryStream packet;
+				int bytesRead = recv(s, packet.GetBufferPtr(), packet.GetCapacity(), 0);
+
+				if (bytesRead > 0)
+				{
+					packet.SetSize((uint32)bytesRead);
+					onSocketReceivedData(s, packet);
+				}
+				else
 				{
 					reportError("Can't receive.");
 					disconnectedSockets.push_back(s);
 				}
-				else
-				{
-					onSocketReceivedData(s, incomingDataBuffer);
-				}
+
+
 			}
 		}
 	}
