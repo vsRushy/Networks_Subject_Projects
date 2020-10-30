@@ -110,6 +110,7 @@ bool ModuleNetworking::preUpdate()
 	if (res == SOCKET_ERROR)
 	{
 		reportError("Can't select.");
+
 		return false;
 	}
 
@@ -131,7 +132,7 @@ bool ModuleNetworking::preUpdate()
 				}
 				else
 				{
-					onSocketConnected(connectedSocket, (const sockaddr_in)remoteAddress);
+					onSocketConnected(connectedSocket, remoteAddress);
 					addSocket(connectedSocket);
 				}
 			}
