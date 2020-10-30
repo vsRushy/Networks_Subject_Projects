@@ -136,9 +136,20 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		for (auto& connectedSocket : connectedSockets)
 		{
+			OutputMemoryStream packet_o;
+
 			if (connectedSocket.socket == socket)
 			{
 				connectedSocket.playerName = playerName;
+
+				packet_o << ServerMessage::Welcome;
+				packet_o << "Welcome to the chat!";
+			}
+
+			if (!sendPacket(packet_o, connectedSocket.socket))
+			{
+				disconnect();
+				state = ServerState::Stopped;
 			}
 		}
 	}

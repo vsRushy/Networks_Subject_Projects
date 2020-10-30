@@ -55,5 +55,6 @@ private:
 	SOCKET s; // Changed name from socket to s to avoid conflicts.
 
 	std::string playerName;
+	std::string message;
 };
 
