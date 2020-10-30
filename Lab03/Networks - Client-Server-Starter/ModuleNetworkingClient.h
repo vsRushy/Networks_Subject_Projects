@@ -49,12 +49,23 @@ private:
 		Logging
 	};
 
+	class Message
+	{
+	public:
+		Message(const std::string& message) : message(message)
+		{
+
+		}
+
+		std::string message;
+	};
+
 	ClientState state = ClientState::Stopped;
 
 	sockaddr_in serverAddress = {};
 	SOCKET s; // Changed name from socket to s to avoid conflicts.
 
 	std::string playerName;
-	std::string message;
+	std::list<Message> messages;
 };
 

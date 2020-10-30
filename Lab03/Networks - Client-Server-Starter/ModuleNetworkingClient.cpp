@@ -87,7 +87,10 @@ bool ModuleNetworkingClient::gui()
 
 		ImGui::Spacing();
 
-		ImGui::Text("%s", this->message.c_str());
+		for (const Message& message : messages)
+		{
+			ImGui::Text("%s", message.message.c_str());
+		}
 
 		ImGui::End();
 	}
@@ -107,7 +110,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		this->message = message;
+		messages.push_back(Message(message));
 
 		break;
 	}

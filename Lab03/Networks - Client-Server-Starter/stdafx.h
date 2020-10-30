@@ -34,6 +34,7 @@
 #include <stddef.h> // ptrdiff_t on osx
 #include <stdlib.h>
 #include <string.h>
+#include <list>
 #include <limits.h>
 #include <assert.h>
 #include <math.h>  // ldexp, pow
