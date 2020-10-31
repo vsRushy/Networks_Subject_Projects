@@ -155,9 +155,9 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			{
 				disconnect();
 				state = ServerState::Stopped;
-			}
 
-			break; // Found
+				break;
+			}
 		}
 
 		break;
@@ -168,22 +168,30 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
+		// First get the socket from who is sending the message and store it.
+		ConnectedSocket fromConnectedSocketSender;
+		for (const auto& connectedSocket : connectedSockets)
+		{
+			if (connectedSocket.socket == socket)
+			{
+				fromConnectedSocketSender = connectedSocket;
+			}
+		}
+
+		// Then send the packet to all connectedSockets, which are all connected users.
 		for (const auto& connectedSocket : connectedSockets)
 		{
 			OutputMemoryStream packet_o;
 
-			if (connectedSocket.socket == socket)
+			packet_o << ServerMessage::Chat;
+			packet_o << fromConnectedSocketSender.playerName + ": " + message;
+
+			if (!sendPacket(packet_o, connectedSocket.socket))
 			{
-				packet_o << ServerMessage::Chat;
-				packet_o << connectedSocket.playerName + ": " + message;
+				disconnect();
+				state = ServerState::Stopped;
 
-				if (!sendPacket(packet_o, socket))
-				{
-					disconnect();
-					state = ServerState::Stopped;
-				}
-
-				break; // Found
+				break;
 			}
 		}
 
