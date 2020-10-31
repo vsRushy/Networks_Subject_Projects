@@ -146,9 +146,9 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 				packet_o << ServerMessage::Welcome;
 				packet_o << "**************************************************\n"
-					"               WELCOME TO THE CHAT\n"
-					"Please type /help to see the available commands.\n"
-					"**************************************************";
+							"               WELCOME TO THE CHAT\n"
+							"Please type /help to see the available commands.\n"
+							"**************************************************";
 			}
 
 			if (!sendPacket(packet_o, connectedSocket.socket))
@@ -168,30 +168,54 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		// First get the socket from who is sending the message and store it.
-		ConnectedSocket fromConnectedSocketSender;
-		for (const auto& connectedSocket : connectedSockets)
-		{
-			if (connectedSocket.socket == socket)
-			{
-				fromConnectedSocketSender = connectedSocket;
-			}
-		}
-
-		// Then send the packet to all connectedSockets, which are all connected users.
-		for (const auto& connectedSocket : connectedSockets)
+		/* Command messages */
+		if (message.compare("/help") == 0)
 		{
 			OutputMemoryStream packet_o;
+			packet_o << ServerMessage::Help;
+			packet_o << "*******************Commands list******************\n"
+				"/help\n"
+				"/kick [username]\n"
+				"/list\n"
+				"/whisper [username] [message]\n"
+				"change_name [username]\n";
 
-			packet_o << ServerMessage::Chat;
-			packet_o << fromConnectedSocketSender.playerName + ": " + message;
-
-			if (!sendPacket(packet_o, connectedSocket.socket))
+			if (!sendPacket(packet_o, socket))
 			{
 				disconnect();
 				state = ServerState::Stopped;
 
 				break;
+			}
+		}
+		else
+		/* Message without command */
+		{
+			// First get the socket from who is sending the message and store it.
+			ConnectedSocket fromConnectedSocketSender;
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.socket == socket)
+				{
+					fromConnectedSocketSender = connectedSocket;
+				}
+			}
+
+			// Then send the packet to all connectedSockets, which are all connected users.
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				OutputMemoryStream packet_o;
+
+				packet_o << ServerMessage::Chat;
+				packet_o << fromConnectedSocketSender.playerName + ": " + message;
+
+				if (!sendPacket(packet_o, connectedSocket.socket))
+				{
+					disconnect();
+					state = ServerState::Stopped;
+
+					break;
+				}
 			}
 		}
 

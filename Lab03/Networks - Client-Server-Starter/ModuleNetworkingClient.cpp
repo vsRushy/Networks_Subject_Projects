@@ -151,6 +151,16 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		break;
 	}
 
+	case ServerMessage::Help:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message));
+
+		break;
+	}
+
 	default:
 	{
 		break;

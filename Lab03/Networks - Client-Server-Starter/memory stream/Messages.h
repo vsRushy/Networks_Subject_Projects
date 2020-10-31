@@ -12,6 +12,7 @@ enum class ClientMessage
 enum class ServerMessage
 {
 	Welcome,
-	Chat
+	Chat,
+	Help
 };
 
