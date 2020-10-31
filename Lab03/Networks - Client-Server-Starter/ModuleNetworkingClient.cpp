@@ -95,7 +95,7 @@ bool ModuleNetworkingClient::gui()
 
 		ImGui::Spacing();
 
-		ImGui::BeginChild("Zone", ImVec2(400.0f, 460.0f), true);
+		ImGui::BeginChild("Zone", ImVec2(400.0f, 465.0f), true);
 		for (const Message& message : messages)
 		{
 			ImGui::Text("%s", message.message.c_str());
@@ -114,6 +114,8 @@ bool ModuleNetworkingClient::gui()
 				disconnect();
 				state = ClientState::Stopped;
 			}
+
+			ImGui::SetKeyboardFocusHere(-1);
 		}
 		
 		ImGui::End();
