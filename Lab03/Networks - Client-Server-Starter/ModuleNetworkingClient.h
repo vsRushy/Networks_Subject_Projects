@@ -23,6 +23,7 @@ private:
 	//////////////////////////////////////////////////////////////////////
 
 	bool update() override;
+	bool cleanUp() override;
 
 	bool gui() override;
 

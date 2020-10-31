@@ -65,6 +65,13 @@ bool ModuleNetworkingClient::update()
 	return true;
 }
 
+bool ModuleNetworkingClient::cleanUp()
+{
+	messages.clear();
+
+	return true;
+}
+
 bool ModuleNetworkingClient::gui()
 {
 	if (state != ClientState::Stopped)
@@ -81,17 +88,34 @@ bool ModuleNetworkingClient::gui()
 		ImGui::SameLine();
 		if (ImGui::Button("Logout"))
 		{
+			messages.clear();
 			disconnect();
 			state = ClientState::Stopped;
 		}
 
 		ImGui::Spacing();
 
+		ImGui::BeginChild("Zone", ImVec2(400.0f, 400.0f), true);
 		for (const Message& message : messages)
 		{
 			ImGui::Text("%s", message.message.c_str());
 		}
+		ImGui::EndChild();
 
+		char text_to_send[Kilobytes(1)] = "";
+		if (ImGui::InputText("Line", text_to_send, IM_ARRAYSIZE(text_to_send), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
+		{
+			OutputMemoryStream packet_o;
+			packet_o << ClientMessage::Chat;
+			packet_o << text_to_send;
+
+			if (!sendPacket(packet_o, s))
+			{
+				disconnect();
+				state = ClientState::Stopped;
+			}
+		}
+		
 		ImGui::End();
 	}
 
@@ -114,6 +138,17 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		break;
 	}
+
+	case ServerMessage::Chat:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message));
+
+		break;
+	}
+
 	default:
 	{
 		break;
