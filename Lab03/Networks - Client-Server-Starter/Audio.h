@@ -4,6 +4,8 @@
 #include <Windows.h>
 #include <map>
 
+#pragma comment(lib, "Winmm.lib")
+
 namespace Audio
 {
 	static std::map<std::string, std::string> audioMap =
