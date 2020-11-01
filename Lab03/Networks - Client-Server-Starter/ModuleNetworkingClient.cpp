@@ -141,9 +141,6 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		messages.push_back(Message(message));
 
 
-		// Play Audio
-		Audio::PlayWindowsSound("Audio/userConnected.wav");
-
 		break;
 	}
 
@@ -166,6 +163,25 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		break;
 	}
+
+	case ServerMessage::WelcomeSound:
+	{
+
+		// Play Audio
+		Audio::PlayWindowsSound(Audio::audioMap.at("Welcome").c_str());
+
+
+		break;
+	}
+	case ServerMessage::ChatSound:
+	{
+	
+		// Play Audio
+		Audio::PlayWindowsSound(Audio::audioMap.at("Chat").c_str());
+
+		break;
+	}
+
 
 	default:
 	{

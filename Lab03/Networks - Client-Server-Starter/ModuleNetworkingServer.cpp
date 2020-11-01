@@ -136,9 +136,19 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string playerName;
 		packet >> playerName;
 
+		// Sound
+		OutputMemoryStream sound_packet;
+		sound_packet << ServerMessage::WelcomeSound;
+
+		for (auto& connectedSocket : connectedSockets)
+			sendPacket(sound_packet, connectedSocket.socket);
+	
+	    // Message
+		OutputMemoryStream packet_o;
+
 		for (auto& connectedSocket : connectedSockets)
 		{
-			OutputMemoryStream packet_o;
+
 
 			if (connectedSocket.socket == socket)
 			{
@@ -167,6 +177,14 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 	{
 		std::string message;
 		packet >> message;
+
+		// Sound
+		OutputMemoryStream sound_packet;
+		sound_packet << ServerMessage::ChatSound;
+
+		for (auto& connectedSocket : connectedSockets)
+			sendPacket(sound_packet, connectedSocket.socket);
+
 
 		/* Command messages */
 		if (message.compare("/help") == 0)

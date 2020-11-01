@@ -13,6 +13,8 @@ enum class ServerMessage
 {
 	Welcome,
 	Chat,
-	Help
+	Help,
+	WelcomeSound,
+	ChatSound
 };
 

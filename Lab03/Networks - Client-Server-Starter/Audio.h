@@ -2,9 +2,16 @@
 
 #include <iostream>
 #include <Windows.h>
+#include <map>
 
 namespace Audio
 {
+	static std::map<std::string, std::string> audioMap =
+	{
+		{"Welcome", "Audio/userConnected.wav"},
+		{"Chat", "Audio/message.wav"}
+	};
+
 	bool PlayWindowsSound(const char* relativeFilePath);
 };
 
