@@ -188,6 +188,8 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		messages.push_back(Message(message));
 
+		// Play Audio
+		Audio::PlayWindowsSound(Audio::audioMap.at("UserDisconnected").c_str());
 
 		break;
 	}
