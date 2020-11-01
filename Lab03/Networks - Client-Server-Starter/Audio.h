@@ -9,7 +9,8 @@ namespace Audio
 	static std::map<std::string, std::string> audioMap =
 	{
 		{"Welcome", "Audio/userConnected.wav"},
-		{"Chat", "Audio/message.wav"}
+		{"Chat", "Audio/message.wav"},
+    	{"UserDisconnected", "Audio/disconnect.wav"}
 	};
 
 	bool PlayWindowsSound(const char* relativeFilePath);
