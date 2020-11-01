@@ -1,4 +1,5 @@
 #include "ModuleNetworkingClient.h"
+#include "Audio.h"
 
 
 bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPort, const char *pplayerName)
@@ -85,6 +86,7 @@ bool ModuleNetworkingClient::gui()
 
 		ImGui::Text("Welcome to the chat %s!", playerName.c_str());
 
+
 		ImGui::SameLine();
 		if (ImGui::Button("Logout"))
 		{
@@ -137,6 +139,10 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		packet >> message;
 
 		messages.push_back(Message(message));
+
+
+		// Play Audio
+		Audio::PlayWindowsSound("Audio/userConnected.wav");
 
 		break;
 	}
