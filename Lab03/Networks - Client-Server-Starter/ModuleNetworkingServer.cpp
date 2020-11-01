@@ -250,14 +250,28 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 {
 	// Remove the connected socket from the list
+	OutputMemoryStream packet;
+	std::string message;
+
+	// erase
 	for (auto it = connectedSockets.begin(); it != connectedSockets.end(); ++it)
 	{
 		auto &connectedSocket = *it;
 		if (connectedSocket.socket == socket)
 		{
+			message = connectedSocket.playerName;
 			connectedSockets.erase(it);
 			break;
 		}
 	}
+
+	// disconnect notification
+	packet << ServerMessage::UserDisconnected;
+	message += " Has Disconnected :(";
+	packet << message.c_str();
+
+	for (auto& connectedSocket : connectedSockets)
+		sendPacket(packet, connectedSocket.socket);
+
 }
 

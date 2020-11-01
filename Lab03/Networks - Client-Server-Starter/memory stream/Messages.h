@@ -15,6 +15,7 @@ enum class ServerMessage
 	Chat,
 	Help,
 	WelcomeSound,
-	ChatSound
+	ChatSound,
+	UserDisconnected
 };
 

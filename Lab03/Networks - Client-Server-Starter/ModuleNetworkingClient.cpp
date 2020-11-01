@@ -181,7 +181,16 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		break;
 	}
+	case ServerMessage::UserDisconnected:
+	{
+		std::string message;
+		packet >> message;
 
+		messages.push_back(Message(message));
+
+
+		break;
+	}
 
 	default:
 	{
