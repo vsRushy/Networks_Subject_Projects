@@ -262,7 +262,7 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket, std::string kic
 		{
 			// Packet to disconnected user
 			OutputMemoryStream individual_packet;
-			global_packet << ServerMessage::Disconnect;
+			individual_packet << ServerMessage::Disconnect;
 			sendPacket(individual_packet, connectedSocket.socket);
 
 			// capture the name
@@ -279,7 +279,6 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket, std::string kic
 	{
 		global_packet << ServerMessage::UserDisconnected;
 		message += " has disconnected :(";
-		global_packet << message.c_str();
 	}
 	else // kick notification
 	{
