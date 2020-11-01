@@ -150,6 +150,13 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 							"Please type /help to see the available commands.\n"
 							"**************************************************";
 			}
+			else
+			/* Notify and send to al clients the new user that has joined. */
+			{
+				std::string message = "********* " + playerName + " joined *********";
+				packet_o << ServerMessage::ClientConnected;
+				packet_o << message;
+			}
 
 			if (!sendPacket(packet_o, connectedSocket.socket))
 			{
