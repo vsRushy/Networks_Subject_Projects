@@ -1,7 +1,5 @@
 #include "ModuleNetworkingServer.h"
-
-
-
+#include <sstream>
 
 //////////////////////////////////////////////////////////////////////
 // ModuleNetworkingServer public methods
@@ -9,6 +7,14 @@
 
 bool ModuleNetworkingServer::start(int port)
 {
+
+	// commands mapped with functions
+	commandMap.insert(std::make_pair("/help", &ModuleNetworkingServer::Help));
+	commandMap.insert(std::make_pair("/kick", &ModuleNetworkingServer::Kick));
+	commandMap.insert(std::make_pair("/list", &ModuleNetworkingServer::List));
+	commandMap.insert(std::make_pair("/whisper", &ModuleNetworkingServer::Whisper));
+	commandMap.insert(std::make_pair("/change_name", &ModuleNetworkingServer::ChangeName));
+
 	// TODO(jesus): TCP listen socket stuff
 	// - Create the listenSocket
 	// - Set address reuse
@@ -185,26 +191,22 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		for (auto& connectedSocket : connectedSockets)
 			sendPacket(sound_packet, connectedSocket.socket);
 
+		// check if the first word is a command
+		std::istringstream stream(message);
+		std::string word0; // origin player
+		std::string word1; // command
+		std::string word2; // dest player
+		std::string word3; // message
+
+		stream >> word1 >> word2 >> word3; // split message into words (word0 is not in message since it is the origin player)
 
 		/* Command messages */
-		if (message.compare("/help") == 0)
+		if ((word1.at(0) == '/') && (commandMap.find(word1) != commandMap.end())) // found command in word1
+			
 		{
-			OutputMemoryStream packet_o;
-			packet_o << ServerMessage::Help;
-			packet_o << "*******************Commands list******************\n"
-				"/help\n"
-				"/kick [username]\n"
-				"/list\n"
-				"/whisper [username] [message]\n"
-				"change_name [username]\n";
-
-			if (!sendPacket(packet_o, socket))
-			{
-				disconnect();
-				state = ServerState::Stopped;
-
+			if((this->*commandMap.at(message))(socket, word0, word2, word3) == false) // call the function in the map
 				break;
-			}
+		
 		}
 		else
 		/* Message without command */
@@ -273,5 +275,57 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 	for (auto& connectedSocket : connectedSockets)
 		sendPacket(packet, connectedSocket.socket);
 
+}
+
+bool ModuleNetworkingServer::Help(SOCKET& socket, std::string p1, std::string p2, std::string message)
+{
+	bool ret = true;
+
+	OutputMemoryStream packet_o;
+	packet_o << ServerMessage::Help;
+	packet_o << "*******************Commands list******************\n"
+		"/help\n"
+		"/kick [username]\n"
+		"/list\n"
+		"/whisper [username] [message]\n"
+		"change_name [username]\n";
+
+	if (!sendPacket(packet_o, socket))
+	{
+		disconnect();
+		state = ServerState::Stopped;
+
+		ret = false;
+	}
+
+	return ret;
+}
+
+bool ModuleNetworkingServer::Kick(SOCKET& socket, std::string p1, std::string p2, std::string message)
+{
+	bool ret = true;
+
+	return ret;
+}
+
+bool ModuleNetworkingServer::List(SOCKET& socket, std::string p1, std::string p2, std::string message)
+{
+	bool ret = true;
+
+	return ret;
+}
+
+bool ModuleNetworkingServer::Whisper(SOCKET& socket, std::string p1, std::string p2, std::string message)
+{
+	bool ret = true;
+
+	return ret;
+}
+
+bool ModuleNetworkingServer::ChangeName(SOCKET& socket, std::string p1, std::string p2, std::string message)
+{
+	bool ret = true;
+
+	return ret;
 }
 

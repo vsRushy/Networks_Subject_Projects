@@ -2,6 +2,8 @@
 
 #include "ModuleNetworking.h"
 
+#include <map>
+
 class ModuleNetworkingServer : public ModuleNetworking
 {
 public:
@@ -40,7 +42,15 @@ private:
 
 	void onSocketDisconnected(SOCKET socket) override;
 
+	//////////////////////////////////////////////////////////////////////
+	// Commands
+	//////////////////////////////////////////////////////////////////////
 
+	bool Help(SOCKET& socket, std::string p1, std::string p2, std::string message);
+	bool Kick(SOCKET& socket, std::string p1, std::string p2, std::string message);
+	bool List(SOCKET& socket, std::string p1, std::string p2, std::string message);
+	bool Whisper(SOCKET& socket, std::string p1, std::string p2, std::string message);
+	bool ChangeName(SOCKET& socket, std::string p1, std::string p2, std::string message);
 
 	//////////////////////////////////////////////////////////////////////
 	// State
@@ -64,5 +74,6 @@ private:
 	};
 
 	std::vector<ConnectedSocket> connectedSockets;
+	std::map<std::string, bool (ModuleNetworkingServer::*) (SOCKET& socket, std::string, std::string, std::string)> commandMap;
 };
 
