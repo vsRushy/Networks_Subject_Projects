@@ -27,7 +27,7 @@ private:
 
 	virtual void onSocketReceivedData(SOCKET s, const InputMemoryStream& packet) = 0;
 
-	virtual void onSocketDisconnected(SOCKET s) = 0;
+	virtual void onSocketDisconnected(SOCKET s, std::string kicker = 0) = 0;
 
 	
 

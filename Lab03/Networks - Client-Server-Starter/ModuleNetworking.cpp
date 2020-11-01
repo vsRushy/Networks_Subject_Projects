@@ -161,7 +161,8 @@ bool ModuleNetworking::preUpdate()
 
 	for (auto s : disconnectedSockets)
 	{
-		onSocketDisconnected(s);
+		std::string empty;
+		onSocketDisconnected(s, empty);
 		sockets.erase(std::find(sockets.begin(), sockets.end(), s));
 	}
 

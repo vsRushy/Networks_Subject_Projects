@@ -181,7 +181,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		break;
 	}
-	case ServerMessage::UserDisconnected:
+	case ServerMessage::UserDisconnected:  
 	{
 		std::string message;
 		packet >> message;
@@ -190,6 +190,27 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		// Play Audio
 		Audio::PlayWindowsSound(Audio::audioMap.at("UserDisconnected").c_str());
+
+
+		break;
+	}
+	case ServerMessage::UserKicked:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message));
+
+		// Play Audio
+		Audio::PlayWindowsSound(Audio::audioMap.at("UserKicked").c_str());
+
+		break;
+	}
+	case ServerMessage::Disconnect:
+	{
+		messages.clear();
+		disconnect();
+		state = ClientState::Stopped;
 
 		break;
 	}
@@ -201,7 +222,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	}
 }
 
-void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket)
+void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket, std::string kicker)
 {
 	state = ClientState::Stopped;
 }

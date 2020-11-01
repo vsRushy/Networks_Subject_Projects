@@ -193,18 +193,17 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 		// check if the first word is a command
 		std::istringstream stream(message);
-		std::string word0; // origin player
 		std::string word1; // command
 		std::string word2; // dest player
 		std::string word3; // message
 
-		stream >> word1 >> word2 >> word3; // split message into words (word0 is not in message since it is the origin player)
+		stream >> word1 >> word2 >> word3; // split message into words 
 
 		/* Command messages */
 		if ((word1.at(0) == '/') && (commandMap.find(word1) != commandMap.end())) // found command in word1
 			
 		{
-			if((this->*commandMap.at(message))(socket, word0, word2, word3) == false) // call the function in the map
+			if((this->*commandMap.at(word1))(socket, word2, word3) == false) // call the function in the map
 				break;
 		
 		}
@@ -249,10 +248,10 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 	}
 }
 
-void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
+void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket, std::string kicker)
 {
-	// Remove the connected socket from the list
-	OutputMemoryStream packet;
+	// Packet to other users
+	OutputMemoryStream global_packet;
 	std::string message;
 
 	// erase
@@ -261,23 +260,42 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 		auto &connectedSocket = *it;
 		if (connectedSocket.socket == socket)
 		{
+			// Packet to disconnected user
+			OutputMemoryStream individual_packet;
+			global_packet << ServerMessage::Disconnect;
+			sendPacket(individual_packet, connectedSocket.socket);
+
+			// capture the name
 			message = connectedSocket.playerName;
+
+			// erase it
 			connectedSockets.erase(it);
 			break;
 		}
 	}
 
 	// disconnect notification
-	packet << ServerMessage::UserDisconnected;
-	message += " Has Disconnected :(";
-	packet << message.c_str();
+	if (kicker.empty())
+	{
+		global_packet << ServerMessage::UserDisconnected;
+		message += " has disconnected :(";
+		global_packet << message.c_str();
+	}
+	else // kick notification
+	{
+		global_packet << ServerMessage::UserKicked;
+		message += " has been kicked by ";
+		message += kicker;
+	}
+
+	global_packet << message.c_str();
 
 	for (auto& connectedSocket : connectedSockets)
-		sendPacket(packet, connectedSocket.socket);
+		sendPacket(global_packet, connectedSocket.socket);
 
 }
 
-bool ModuleNetworkingServer::Help(SOCKET& socket, std::string p1, std::string p2, std::string message)
+bool ModuleNetworkingServer::Help(SOCKET& socket, std::string p2, std::string message)
 {
 	bool ret = true;
 
@@ -301,28 +319,40 @@ bool ModuleNetworkingServer::Help(SOCKET& socket, std::string p1, std::string p2
 	return ret;
 }
 
-bool ModuleNetworkingServer::Kick(SOCKET& socket, std::string p1, std::string p2, std::string message)
+bool ModuleNetworkingServer::Kick(SOCKET& socket, std::string p2, std::string message) // socket is the origin and p2 the kicked player
+{
+	bool ret = true;
+
+	int kicker = 666, kicked = 666;
+	for (int i = 0; i < connectedSockets.size(); ++i)
+	{
+		if (connectedSockets.at(i).playerName == p2)
+			kicked = i;
+		else if (connectedSockets.at(i).socket == socket)
+			kicker = i;
+ 
+	}
+
+	onSocketDisconnected(connectedSockets.at(kicked).socket, connectedSockets.at(kicker).playerName); 
+
+	return ret;
+}
+
+bool ModuleNetworkingServer::List(SOCKET& socket, std::string p2, std::string message)
 {
 	bool ret = true;
 
 	return ret;
 }
 
-bool ModuleNetworkingServer::List(SOCKET& socket, std::string p1, std::string p2, std::string message)
+bool ModuleNetworkingServer::Whisper(SOCKET& socket, std::string p2, std::string message)
 {
 	bool ret = true;
 
 	return ret;
 }
 
-bool ModuleNetworkingServer::Whisper(SOCKET& socket, std::string p1, std::string p2, std::string message)
-{
-	bool ret = true;
-
-	return ret;
-}
-
-bool ModuleNetworkingServer::ChangeName(SOCKET& socket, std::string p1, std::string p2, std::string message)
+bool ModuleNetworkingServer::ChangeName(SOCKET& socket, std::string p2, std::string message)
 {
 	bool ret = true;
 

@@ -40,17 +40,17 @@ private:
 
 	void onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet) override;
 
-	void onSocketDisconnected(SOCKET socket) override;
+	void onSocketDisconnected(SOCKET socket, std::string kicker) override;
 
 	//////////////////////////////////////////////////////////////////////
 	// Commands
 	//////////////////////////////////////////////////////////////////////
 
-	bool Help(SOCKET& socket, std::string p1, std::string p2, std::string message);
-	bool Kick(SOCKET& socket, std::string p1, std::string p2, std::string message);
-	bool List(SOCKET& socket, std::string p1, std::string p2, std::string message);
-	bool Whisper(SOCKET& socket, std::string p1, std::string p2, std::string message);
-	bool ChangeName(SOCKET& socket, std::string p1, std::string p2, std::string message);
+	bool Help(SOCKET& socket, std::string p2, std::string message);
+	bool Kick(SOCKET& socket, std::string p2, std::string message);
+	bool List(SOCKET& socket, std::string p2, std::string message);
+	bool Whisper(SOCKET& socket, std::string p2, std::string message);
+	bool ChangeName(SOCKET& socket, std::string p2, std::string message);
 
 	//////////////////////////////////////////////////////////////////////
 	// State
@@ -74,6 +74,6 @@ private:
 	};
 
 	std::vector<ConnectedSocket> connectedSockets;
-	std::map<std::string, bool (ModuleNetworkingServer::*) (SOCKET& socket, std::string, std::string, std::string)> commandMap;
+	std::map<std::string, bool (ModuleNetworkingServer::*) (SOCKET& socket, std::string, std::string)> commandMap;
 };
 
