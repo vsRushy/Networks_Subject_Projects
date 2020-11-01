@@ -88,9 +88,9 @@ bool ModuleNetworkingClient::gui()
 		ImGui::SameLine();
 		if (ImGui::Button("Logout"))
 		{
-			messages.clear();
 			disconnect();
 			state = ClientState::Stopped;
+			messages.clear();
 		}
 
 		ImGui::Spacing();
@@ -152,6 +152,16 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	}
 
 	case ServerMessage::Help:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message));
+
+		break;
+	}
+
+	case ServerMessage::ClientDisconnected:
 	{
 		std::string message;
 		packet >> message;

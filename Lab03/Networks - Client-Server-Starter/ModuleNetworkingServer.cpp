@@ -237,7 +237,26 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 		auto &connectedSocket = *it;
 		if (connectedSocket.socket == socket)
 		{
+			std::string playerName = connectedSocket.playerName;
+
 			connectedSockets.erase(it);
+
+			// Send and notify to all clients
+			for (const auto& connectedSocketC : connectedSockets)
+			{
+				OutputMemoryStream packet_o;
+
+				std::string message = "********* " + playerName + " left *********";
+				packet_o << ServerMessage::ClientDisconnected;
+				packet_o << message;
+
+				if (!sendPacket(packet_o, connectedSocketC.socket))
+				{
+					disconnect();
+					state = ServerState::Stopped;
+				}
+			}
+
 			break;
 		}
 	}
