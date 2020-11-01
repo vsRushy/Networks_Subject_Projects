@@ -141,6 +141,19 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		break;
 	}
 
+	case ServerMessage::NonWelcome:
+	{
+		std::string messagePlayerName;
+		packet >> messagePlayerName;
+
+		LOG("The user with the name %s already exists.", messagePlayerName.c_str());
+
+		disconnect();
+		state = ClientState::Stopped;
+
+		break;
+	}
+
 	case ServerMessage::Chat:
 	{
 		std::string message;

@@ -136,6 +136,27 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string playerName;
 		packet >> playerName;
 
+		// First check if username exists.
+		for (const auto& connectedSocket : connectedSockets)
+		{
+			if (connectedSocket.playerName == playerName)
+			{
+				OutputMemoryStream packet_o;
+				packet_o << ServerMessage::NonWelcome;
+				packet_o << playerName;
+
+				if (!sendPacket(packet_o, socket))
+				{
+					disconnect();
+					state = ServerState::Stopped;
+
+					break;
+				}
+
+				return; // Exit function
+			}
+		}
+
 		for (auto& connectedSocket : connectedSockets)
 		{
 			OutputMemoryStream packet_o;
