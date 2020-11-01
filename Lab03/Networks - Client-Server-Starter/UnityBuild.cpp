@@ -4,6 +4,7 @@
 
 #include "Networks.h"
 
+#include "memory stream/MemoryStream.cpp"
 #include "ModuleNetworking.cpp"
 #include "ModuleNetworkingClient.cpp"
 #include "ModuleNetworkingServer.cpp"

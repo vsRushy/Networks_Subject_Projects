@@ -1,4 +1,4 @@
-#include "Networks.h"
+#include "../Networks.h"
 
 void OutputMemoryStream::Write(const void *inData, size_t inByteCount)
 {

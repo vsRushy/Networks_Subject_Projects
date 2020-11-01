@@ -23,6 +23,19 @@ void ModuleNetworking::reportError(const char* inOperationDesc)
 	ELOG("Error %s: %d- %s", inOperationDesc, errorNum, lpMsgBuf);
 }
 
+bool ModuleNetworking::sendPacket(const OutputMemoryStream& packet, SOCKET socket)
+{
+	int result = send(socket, packet.GetBufferPtr(), packet.GetSize(), 0);
+	if(result == SOCKET_ERROR)
+	{
+		reportError("Can't send.");
+		
+		return false;
+	}
+
+	return true;
+}
+
 void ModuleNetworking::disconnect()
 {
 	for (SOCKET socket : sockets)
@@ -97,6 +110,7 @@ bool ModuleNetworking::preUpdate()
 	if (res == SOCKET_ERROR)
 	{
 		reportError("Can't select.");
+
 		return false;
 	}
 
@@ -118,27 +132,29 @@ bool ModuleNetworking::preUpdate()
 				}
 				else
 				{
-					onSocketConnected(connectedSocket, (const sockaddr_in)remoteAddress);
+					onSocketConnected(connectedSocket, remoteAddress);
 					addSocket(connectedSocket);
 				}
 			}
 			else
 			{
 				InputMemoryStream packet;
-				int bytesRead = recv(s, packet.GetBufferPtr(), packet.GetCapacity(), 0);
+				int iResult = recv(s, packet.GetBufferPtr(), packet.GetCapacity(), 0);
 
-				if (bytesRead > 0)
-				{
-					packet.SetSize((uint32)bytesRead);
-					onSocketReceivedData(s, packet);
-				}
-				else
+				if (iResult == SOCKET_ERROR)
 				{
 					reportError("Can't receive.");
 					disconnectedSockets.push_back(s);
 				}
-
-
+				else if (iResult == 0)
+				{
+					disconnectedSockets.push_back(s);
+				}
+				else
+				{
+					packet.SetSize(static_cast<uint32>(iResult));
+					onSocketReceivedData(s, packet);
+				}
 			}
 		}
 	}
@@ -174,15 +190,3 @@ void ModuleNetworking::addSocket(SOCKET socket)
 {
 	sockets.push_back(socket);
 }
-
-bool ModuleNetworking::sendPacket(const OutputMemoryStream& packet, SOCKET socket)
-{
-	int result = send(socket, packet.GetBufferPtr(), packet.GetSize(), 0);
-	
-	if (result == SOCKET_ERROR)
-	{
-		reportError("send"); return false;
-	}
-return true;
-	}
-

@@ -29,9 +29,9 @@ private:
 
 	virtual void onSocketDisconnected(SOCKET s) = 0;
 
+	
 
 protected:
-	static bool sendPacket(const OutputMemoryStream& packet, SOCKET socket); // had to change this, hard to access a private method :( 
 
 	std::vector<SOCKET> sockets;
 
@@ -40,5 +40,7 @@ protected:
 	void disconnect();
 
 	static void reportError(const char *message);
+
+	static bool sendPacket(const OutputMemoryStream& packet, SOCKET socket);
 };
 

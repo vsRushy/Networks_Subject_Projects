@@ -125,20 +125,34 @@ void ModuleNetworkingServer::onSocketConnected(SOCKET socket, const sockaddr_in 
 
 void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet)
 {
-	ClientMessage clientMessage; 
+	// Set the player name of the corresponding connected socket proxy
+	ClientMessage clientMessage;
 	packet >> clientMessage;
+
 	if (clientMessage == ClientMessage::Hello)
 	{
-		std::string playerName; packet >> playerName;
+		std::string playerName;
+		packet >> playerName;
+
 		for (auto& connectedSocket : connectedSockets)
 		{
+			OutputMemoryStream packet_o;
+
 			if (connectedSocket.socket == socket)
 			{
 				connectedSocket.playerName = playerName;
+
+				packet_o << ServerMessage::Welcome;
+				packet_o << "Welcome to the chat!";
+			}
+
+			if (!sendPacket(packet_o, connectedSocket.socket))
+			{
+				disconnect();
+				state = ServerState::Stopped;
 			}
 		}
 	}
-
 }
 
 void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
