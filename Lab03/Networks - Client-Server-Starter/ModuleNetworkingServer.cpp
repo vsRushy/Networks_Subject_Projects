@@ -216,10 +216,18 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		}
 		else if (message.compare("/list") == 0)
 		{
+			std::list<std::string> users;
 			std::string user_list = "********* User list *********";
 			for (const auto& connectedSocket : connectedSockets)
 			{
-				user_list.append("\n").append(connectedSocket.playerName);
+				users.push_back(connectedSocket.playerName);
+			}
+
+			users.sort();
+
+			for (const auto& user : users)
+			{
+				user_list.append("\n").append(user);
 			}
 
 			OutputMemoryStream packet_o;
