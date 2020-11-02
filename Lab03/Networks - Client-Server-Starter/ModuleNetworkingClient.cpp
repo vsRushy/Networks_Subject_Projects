@@ -184,6 +184,14 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		break;
 	}
 
+	case ServerMessage::Disconnect:
+	{
+		disconnect();
+		state = ClientState::Stopped;
+
+		break;
+	}
+
 	case ServerMessage::ClientConnected:
 	{
 		std::string message;

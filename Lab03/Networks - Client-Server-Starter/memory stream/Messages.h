@@ -16,6 +16,7 @@ enum class ServerMessage
 	Chat,
 	Help,
 	List,
+	Disconnect,
 	ClientConnected,
 	ClientDisconnected
 };

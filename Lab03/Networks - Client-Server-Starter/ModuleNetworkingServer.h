@@ -2,6 +2,8 @@
 
 #include "ModuleNetworking.h"
 
+#define KICK_COMMAND_OFFSET 6
+
 class ModuleNetworkingServer : public ModuleNetworking
 {
 public:

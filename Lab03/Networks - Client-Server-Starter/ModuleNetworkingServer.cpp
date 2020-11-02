@@ -241,7 +241,23 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		}
 		else if (message.find("/kick") == 0)
 		{
+			std::string playerName = message.substr(KICK_COMMAND_OFFSET);
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.playerName == playerName)
+				{
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::Disconnect;
 
+					if (!sendPacket(packet_o, connectedSocket.socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+
+					break;
+				}
+			}
 		}
 		else if (message.find("/whisper") == 0)
 		{
