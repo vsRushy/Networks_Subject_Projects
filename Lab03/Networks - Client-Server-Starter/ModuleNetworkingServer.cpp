@@ -203,10 +203,10 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			packet_o << ServerMessage::Help;
 			packet_o << "*******************Commands list******************\n"
 				"/help\n"
-				"/kick [username]\n"
 				"/list\n"
+				"/kick [username]\n"
 				"/whisper [username] [message]\n"
-				"change_name [username]\n";
+				"/change_name [username]\n";
 
 			if (!sendPacket(packet_o, socket))
 			{
@@ -215,6 +215,35 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 
 				break;
 			}
+		}
+		else if (message.compare("/list") == 0)
+		{
+			std::string user_list = "********* User list *********";
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				user_list.append("\n").append(connectedSocket.playerName);
+			}
+
+			OutputMemoryStream packet_o;
+			packet_o << ServerMessage::List << user_list;
+
+			if (!sendPacket(packet_o, socket))
+			{
+				disconnect();
+				state = ServerState::Stopped;
+			}
+		}
+		else if (message.find("/kick") == 0)
+		{
+
+		}
+		else if (message.find("/whisper") == 0)
+		{
+
+		}
+		else if (message.find("/change_name") == 0)
+		{
+
 		}
 		else
 		/* Message without command */
@@ -274,7 +303,7 @@ void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 			{
 				OutputMemoryStream packet_o;
 
-				std::string message = "********* " + playerName + " left *********";
+				std::string message = "********** " + playerName + " left **********";
 				packet_o << ServerMessage::ClientDisconnected;
 				packet_o << message;
 
