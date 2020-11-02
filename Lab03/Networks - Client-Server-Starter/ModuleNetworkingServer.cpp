@@ -142,8 +142,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			if (connectedSocket.playerName == playerName)
 			{
 				OutputMemoryStream packet_o;
-				packet_o << ServerMessage::NonWelcome;
-				packet_o << playerName;
+				packet_o << ServerMessage::NonWelcome << playerName;
 
 				if (!sendPacket(packet_o, socket))
 				{
@@ -165,18 +164,17 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			{
 				connectedSocket.playerName = playerName;
 
-				packet_o << ServerMessage::Welcome;
-				packet_o << "**************************************************\n"
-							"               WELCOME TO THE CHAT\n"
-							"Please type /help to see the available commands.\n"
-							"**************************************************";
+				packet_o << ServerMessage::Welcome << 
+					"**************************************************\n"
+					"               WELCOME TO THE CHAT\n"
+					"Please type /help to see the available commands.\n"
+					"**************************************************";
 			}
 			else
 			/* Notify and send to al clients the new user that has joined. */
 			{
 				std::string message = "********* " + playerName + " joined *********";
-				packet_o << ServerMessage::ClientConnected;
-				packet_o << message;
+				packet_o << ServerMessage::ClientConnected << message;
 			}
 
 			if (!sendPacket(packet_o, connectedSocket.socket))
@@ -200,8 +198,8 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		if (message.compare("/help") == 0)
 		{
 			OutputMemoryStream packet_o;
-			packet_o << ServerMessage::Help;
-			packet_o << "*******************Commands list******************\n"
+			packet_o << ServerMessage::Help << 
+				"*******************Commands list******************\n"
 				"/help\n"
 				"/list\n"
 				"/kick [username]\n"
@@ -263,8 +261,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			{
 				OutputMemoryStream packet_o;
 
-				packet_o << ServerMessage::Chat;
-				packet_o << fromConnectedSocketSender.playerName + ": " + message;
+				packet_o << ServerMessage::Chat << fromConnectedSocketSender.playerName + ": " + message;
 
 				if (!sendPacket(packet_o, connectedSocket.socket))
 				{
