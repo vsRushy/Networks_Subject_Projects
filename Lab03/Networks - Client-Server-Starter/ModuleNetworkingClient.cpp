@@ -95,7 +95,7 @@ bool ModuleNetworkingClient::gui()
 
 		ImGui::Spacing();
 
-		ImGui::BeginChild("Zone", ImVec2(400.0f, 465.0f), true);
+		ImGui::BeginChild("Zone", ImVec2(430.0f, 465.0f), true);
 		for (const Message& message : messages)
 		{
 			ImGui::Text("%s", message.message.c_str());
@@ -205,6 +205,16 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	case ServerMessage::ChangeClientName:
 	{
 		packet >> playerName;
+
+		break;
+	}
+
+	case ServerMessage::InvalidCommand:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message));
 
 		break;
 	}

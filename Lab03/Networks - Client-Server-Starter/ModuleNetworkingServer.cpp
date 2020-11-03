@@ -353,7 +353,15 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		/* Invalid command */
 		else if (message.find("/") == 0)
 		{
-			
+			OutputMemoryStream packet_o;
+			packet_o << ServerMessage::InvalidCommand;
+			packet_o << "Unknown command. Please enter /help for more information.";
+
+			if (!sendPacket(packet_o, socket))
+			{
+				disconnect();
+				state = ServerState::Stopped;
+			}
 		}
 		else
 		/* Message without command */
