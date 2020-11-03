@@ -17,6 +17,7 @@ enum class ServerMessage
 	Help,
 	List,
 	Disconnect,
+	Whisper,
 	ClientConnected,
 	ClientDisconnected
 };

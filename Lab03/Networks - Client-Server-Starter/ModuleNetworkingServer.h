@@ -3,6 +3,7 @@
 #include "ModuleNetworking.h"
 
 #define KICK_COMMAND_OFFSET 6
+#define WHISPER_COMMAND_OFFSET 9
 
 class ModuleNetworkingServer : public ModuleNetworking
 {

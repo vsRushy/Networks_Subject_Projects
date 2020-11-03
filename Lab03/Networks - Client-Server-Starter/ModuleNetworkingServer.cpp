@@ -261,9 +261,60 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		}
 		else if (message.find("/whisper") == 0)
 		{
+			std::istringstream words(message);
+			std::string word;
+			std::vector<std::string> word_list;
 
+			while (words >> word)
+			{
+				word_list.push_back(word);
+			}
+
+			std::string playerName = word_list[1];
+			std::string sentence;
+
+			// Index of the message starts at 2 (command [0], playername[1], message[2])
+			for (int i = 2; i < word_list.size(); ++i)
+			{
+				sentence.append(word_list[i]).append(" ");
+			}
+
+			// First get the socket from who is sending the message and store it.
+			ConnectedSocket fromConnectedSocketSender;
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.socket == socket)
+				{
+					fromConnectedSocketSender = connectedSocket;
+					
+					break;
+				}
+			}
+
+			// Send message to the sender and receiver clients.
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.playerName == playerName)
+				{
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::Whisper <<
+						std::string(fromConnectedSocketSender.playerName).append(" whispers to ").
+						append(connectedSocket.playerName).append(": ").append(sentence);
+
+					if (!sendPacket(packet_o, fromConnectedSocketSender.socket) || !sendPacket(packet_o, connectedSocket.socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+				}
+			}
 		}
 		else if (message.find("/change_name") == 0)
+		{
+
+		}
+		/* Invalid command */
+		else if (message.find("/") == 0)
 		{
 
 		}
@@ -277,6 +328,8 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				if (connectedSocket.socket == socket)
 				{
 					fromConnectedSocketSender = connectedSocket;
+
+					break;
 				}
 			}
 
