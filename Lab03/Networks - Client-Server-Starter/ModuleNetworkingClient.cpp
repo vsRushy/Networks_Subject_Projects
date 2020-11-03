@@ -202,6 +202,13 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		break;
 	}
 
+	case ServerMessage::ChangeClientName:
+	{
+		packet >> playerName;
+
+		break;
+	}
+
 	case ServerMessage::ClientConnected:
 	{
 		std::string message;

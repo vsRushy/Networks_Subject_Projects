@@ -18,6 +18,7 @@ enum class ServerMessage
 	List,
 	Disconnect,
 	Whisper,
+	ChangeClientName,
 	ClientConnected,
 	ClientDisconnected
 };

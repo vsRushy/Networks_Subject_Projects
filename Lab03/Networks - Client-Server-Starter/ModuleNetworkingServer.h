@@ -4,6 +4,7 @@
 
 #define KICK_COMMAND_OFFSET 6
 #define WHISPER_COMMAND_OFFSET 9
+#define CHANGE_NAME_COMMAND_OFFSET 13
 
 class ModuleNetworkingServer : public ModuleNetworking
 {

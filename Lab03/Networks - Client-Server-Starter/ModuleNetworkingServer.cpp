@@ -270,6 +270,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				word_list.push_back(word);
 			}
 
+			// Index of the player is at 1 (command [0], playername[1], message[2])
 			std::string playerName = word_list[1];
 			std::string sentence;
 
@@ -311,12 +312,48 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		}
 		else if (message.find("/change_name") == 0)
 		{
+			std::string playerName = message.substr(CHANGE_NAME_COMMAND_OFFSET);
 
+			// First check if username already exists.
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.playerName == playerName)
+				{
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::NonWelcome;
+					packet_o << playerName;
+
+					if (!sendPacket(packet_o, socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+				}
+			}
+
+			// Send new username.
+			for (auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.socket == socket)
+				{
+					connectedSocket.playerName = playerName;
+
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::ChangeClientName;
+					packet_o << playerName;
+
+					if (!sendPacket(packet_o, connectedSocket.socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+				}
+			}
 		}
 		/* Invalid command */
 		else if (message.find("/") == 0)
 		{
-
+			
 		}
 		else
 		/* Message without command */
