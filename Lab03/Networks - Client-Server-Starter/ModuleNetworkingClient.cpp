@@ -95,7 +95,7 @@ bool ModuleNetworkingClient::gui()
 
 		ImGui::Spacing();
 
-		ImGui::BeginChild("Zone", ImVec2(430.0f, 465.0f), true);
+		ImGui::BeginChild("Chat Zone", ImVec2(430.0f, 468.0f), true);
 		for (const Message& message : messages)
 		{
 			ImGui::Text("%s", message.message.c_str());
