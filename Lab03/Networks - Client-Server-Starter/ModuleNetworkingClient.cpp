@@ -98,7 +98,7 @@ bool ModuleNetworkingClient::gui()
 		ImGui::BeginChild("Chat Zone", ImVec2(430.0f, 468.0f), true);
 		for (const Message& message : messages)
 		{
-			ImGui::Text("%s", message.message.c_str());
+			ImGui::TextColored(ImVec4(playerColor.r, playerColor.g, playerColor.b, playerColor.a), "%s", message.message.c_str());
 		}
 		ImGui::EndChild();
 
@@ -222,6 +222,13 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	case ServerMessage::Clear:
 	{
 		messages.clear();
+
+		break;
+	}
+
+	case ServerMessage::ChangeClientColor:
+	{
+		packet >> playerColor.r >> playerColor.g >> playerColor.b >> playerColor.a;
 
 		break;
 	}

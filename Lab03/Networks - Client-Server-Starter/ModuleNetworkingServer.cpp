@@ -361,12 +361,47 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				state = ServerState::Stopped;
 			}
 		}
+		else if (message.find("/change_color") == 0)
+		{
+			std::istringstream words(message);
+			std::string word;
+			std::vector<std::string> word_list;
+
+			while (words >> word)
+			{
+				word_list.push_back(word);
+			}
+
+			// command [0] R [1] G [2] B[3] A[4]
+			Color playerColor(std::stod(word_list[1]),
+				std::stod(word_list[2]),
+				std::stod(word_list[3]),
+				std::stod(word_list[4]));
+			
+			for (auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.socket == socket)
+				{
+					connectedSocket.playerColor = playerColor;
+
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::ChangeClientColor <<
+						playerColor.r << playerColor.g << playerColor.b << playerColor.a;
+
+					if (!sendPacket(packet_o, connectedSocket.socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+				}
+			}
+		}
 		/* Invalid command */
 		else if (message.find("/") == 0)
 		{
 			OutputMemoryStream packet_o;
-			packet_o << ServerMessage::InvalidCommand;
-			packet_o << "Unknown command. Please enter /help for more information.";
+			packet_o << ServerMessage::InvalidCommand <<
+				"Unknown command. Please enter /help for more information.";
 
 			if (!sendPacket(packet_o, socket))
 			{

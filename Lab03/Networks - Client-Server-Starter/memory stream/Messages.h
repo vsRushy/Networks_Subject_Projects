@@ -21,6 +21,7 @@ enum class ServerMessage
 	ChangeClientName,
 	InvalidCommand,
 	Clear,
+	ChangeClientColor,
 	ClientConnected,
 	ClientDisconnected
 };

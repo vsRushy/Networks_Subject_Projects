@@ -53,12 +53,13 @@ private:
 	class Message
 	{
 	public:
-		Message(const std::string& message) : message(message)
+		Message(const std::string& message, const Color& color = Color()) : message(message), color(color)
 		{
-
+			
 		}
 
 		std::string message;
+		Color color;
 	};
 
 	ClientState state = ClientState::Stopped;
@@ -67,6 +68,7 @@ private:
 	SOCKET s; // Changed name from socket to s to avoid conflicts.
 
 	std::string playerName;
+	Color playerColor;
 	std::list<Message> messages;
 };
 
