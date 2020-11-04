@@ -20,6 +20,7 @@ enum class ServerMessage
 	Whisper,
 	ChangeClientName,
 	InvalidCommand,
+	Clear,
 	ClientConnected,
 	ClientDisconnected
 };

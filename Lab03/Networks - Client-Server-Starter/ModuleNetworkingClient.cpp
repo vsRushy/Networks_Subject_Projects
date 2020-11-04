@@ -219,6 +219,13 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		break;
 	}
 
+	case ServerMessage::Clear:
+	{
+		messages.clear();
+
+		break;
+	}
+
 	case ServerMessage::ClientConnected:
 	{
 		std::string message;

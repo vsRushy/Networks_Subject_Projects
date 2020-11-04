@@ -199,13 +199,13 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		{
 			OutputMemoryStream packet_o;
 			packet_o << ServerMessage::Help << 
-				"*******************Commands list******************\n"
+				"****************** Commands list *****************\n"
 				"/help\n"
 				"/list\n"
 				"/kick [username]\n"
 				"/whisper [username] [message]\n"
 				"/change_name [username]\n";
-
+			
 			if (!sendPacket(packet_o, socket))
 			{
 				disconnect();
@@ -348,6 +348,17 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 						state = ServerState::Stopped;
 					}
 				}
+			}
+		}
+		else if (message.find("/clear") == 0)
+		{
+			OutputMemoryStream packet_o;
+			packet_o << ServerMessage::Clear;
+
+			if (!sendPacket(packet_o, socket))
+			{
+				disconnect();
+				state = ServerState::Stopped;
 			}
 		}
 		/* Invalid command */
