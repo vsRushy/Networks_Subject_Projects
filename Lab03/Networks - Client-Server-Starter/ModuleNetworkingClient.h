@@ -53,7 +53,7 @@ private:
 	class Message
 	{
 	public:
-		Message(const std::string& message, const Color& color = Color()) : message(message), color(color)
+		Message(const std::string& message, const Color& color /*= Color()*/) : message(message), color(color)
 		{
 			
 		}

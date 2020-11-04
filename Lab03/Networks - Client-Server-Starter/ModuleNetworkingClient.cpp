@@ -98,7 +98,7 @@ bool ModuleNetworkingClient::gui()
 		ImGui::BeginChild("Chat Zone", ImVec2(430.0f, 468.0f), true);
 		for (const Message& message : messages)
 		{
-			ImGui::TextColored(ImVec4(playerColor.r, playerColor.g, playerColor.b, playerColor.a), "%s", message.message.c_str());
+			ImGui::TextColored(ImVec4(message.color.r, message.color.g, message.color.b, message.color.a), "%s", message.message.c_str());
 		}
 		ImGui::EndChild();
 
@@ -136,7 +136,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, Color(0.0f, 1.0f, 1.0f, 1.0f)));
 
 		break;
 	}
@@ -159,7 +159,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, playerColor));
 
 		break;
 	}
@@ -169,7 +169,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, Color(0.8f, 0.8f, 0.8f, 1.0f)));
 
 		break;
 	}
@@ -179,7 +179,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, Color(0.8f, 0.2f, 0.5f, 1.0f)));
 
 		break;
 	}
@@ -197,7 +197,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, Color(0.3f, 0.3f, 0.3f, 1.0f)));
 
 		break;
 	}
@@ -214,7 +214,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, Color(1.0f, 0.0f, 0.0f, 1.0f)));
 
 		break;
 	}
@@ -238,7 +238,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, Color(1.0f, 1.0f, 0.5f, 1.0f)));
 
 		break;
 	}
@@ -248,7 +248,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, Color(0.5f, 0.0f, 1.0f, 1.0f)));
 
 		break;
 	}
