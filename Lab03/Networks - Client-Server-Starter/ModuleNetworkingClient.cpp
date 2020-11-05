@@ -157,7 +157,7 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	case ServerMessage::Chat:
 	{
 		std::string message;
-		packet >> message;
+		packet >> message >> playerColor.r >> playerColor.g >> playerColor.b >> playerColor.a;
 
 		messages.push_back(Message(message, playerColor));
 

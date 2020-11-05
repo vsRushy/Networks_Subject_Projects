@@ -204,7 +204,8 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				"/list\n"
 				"/kick [username]\n"
 				"/whisper [username] [message]\n"
-				"/change_name [username]\n";
+				"/change_name [username]\n"
+				"/change_color [R] [G] [B] [A]\n";
 			
 			if (!sendPacket(packet_o, socket))
 			{
@@ -320,8 +321,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				if (connectedSocket.playerName == playerName)
 				{
 					OutputMemoryStream packet_o;
-					packet_o << ServerMessage::NonWelcome;
-					packet_o << playerName;
+					packet_o << ServerMessage::NonWelcome << playerName;
 
 					if (!sendPacket(packet_o, socket))
 					{
@@ -339,8 +339,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 					connectedSocket.playerName = playerName;
 
 					OutputMemoryStream packet_o;
-					packet_o << ServerMessage::ChangeClientName;
-					packet_o << playerName;
+					packet_o << ServerMessage::ChangeClientName << playerName;
 
 					if (!sendPacket(packet_o, connectedSocket.socket))
 					{
@@ -429,7 +428,9 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			{
 				OutputMemoryStream packet_o;
 
-				packet_o << ServerMessage::Chat << fromConnectedSocketSender.playerName + ": " + message;
+				packet_o << ServerMessage::Chat << fromConnectedSocketSender.playerName + ": " + message <<
+					fromConnectedSocketSender.playerColor.r << fromConnectedSocketSender.playerColor.g <<
+					fromConnectedSocketSender.playerColor.b << fromConnectedSocketSender.playerColor.a;
 
 				if (!sendPacket(packet_o, connectedSocket.socket))
 				{
