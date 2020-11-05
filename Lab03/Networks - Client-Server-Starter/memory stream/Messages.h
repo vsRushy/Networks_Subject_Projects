@@ -22,6 +22,7 @@ enum class ServerMessage
 	InvalidCommand,
 	Clear,
 	ChangeClientColor,
+	RockPaperScissors,
 	ClientConnected,
 	ClientDisconnected
 };

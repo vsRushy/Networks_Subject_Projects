@@ -24,6 +24,8 @@ int main(int argc, char **argv)
 
 	MainState state = MainState::Create;
 
+	srand(time(NULL));
+
 	while (state != MainState::Exit)
 	{
 		switch (state)

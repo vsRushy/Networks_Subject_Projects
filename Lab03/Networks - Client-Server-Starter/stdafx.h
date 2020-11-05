@@ -38,6 +38,7 @@
 #include <list>
 #include <limits.h>
 #include <assert.h>
+#include <time.h>
 #include <math.h>  // ldexp, pow
 
 // dear imgui: standalone example application for DirectX 9

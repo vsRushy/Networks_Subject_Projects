@@ -205,7 +205,8 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				"/kick [username]\n"
 				"/whisper [username] [message]\n"
 				"/change_name [username]\n"
-				"/change_color [r] [g] [b] [a] with value range being [0:1]\n";
+				"/change_color [r] [g] [b] [a] with value range being [0:1]\n"
+				"/rps (rock paper scissors)\n";
 			
 			if (!sendPacket(packet_o, socket))
 			{
@@ -392,6 +393,36 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 						disconnect();
 						state = ServerState::Stopped;
 					}
+				}
+			}
+		}
+		else if (message.find("/rps") == 0)
+		{
+			std::vector<std::string> rps = { "ROCK", "PAPER", "SCISSORS" };
+			int option = rand() % 3;
+
+			// First get the socket from who is sending the message and store it.
+			ConnectedSocket fromConnectedSocketSender;
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.socket == socket)
+				{
+					fromConnectedSocketSender = connectedSocket;
+
+					break;
+				}
+			}
+
+			// Then send the packet to all connectedSockets, which are all connected users.
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				OutputMemoryStream packet_o;
+				packet_o << ServerMessage::RockPaperScissors << fromConnectedSocketSender.playerName + " played: " + rps[option];
+
+				if (!sendPacket(packet_o, connectedSocket.socket))
+				{
+					disconnect();
+					state = ServerState::Stopped;
 				}
 			}
 		}

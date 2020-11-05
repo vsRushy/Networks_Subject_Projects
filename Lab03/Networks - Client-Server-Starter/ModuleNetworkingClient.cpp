@@ -235,6 +235,16 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		break;
 	}
 
+	case ServerMessage::RockPaperScissors:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.0f, 0.8f, 0.0f, 1.0f)));
+
+		break;
+	}
+
 	case ServerMessage::ClientConnected:
 	{
 		std::string message;
