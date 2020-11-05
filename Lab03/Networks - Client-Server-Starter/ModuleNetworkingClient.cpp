@@ -98,12 +98,14 @@ bool ModuleNetworkingClient::gui()
 		ImGui::BeginChild("Chat Zone", ImVec2(430.0f, 468.0f), true);
 		for (const Message& message : messages)
 		{
-			ImGui::TextColored(ImVec4(message.color.r, message.color.g, message.color.b, message.color.a), "%s", message.message.c_str());
+			ImGui::TextColored(ImVec4(message.color.r, message.color.g, message.color.b, message.color.a),
+				"%s", message.message.c_str());
 		}
 		ImGui::EndChild();
 
 		char text_to_send[Kilobytes(1)] = "";
-		if (ImGui::InputText("Line", text_to_send, IM_ARRAYSIZE(text_to_send), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
+		if (ImGui::InputText("Line", text_to_send, IM_ARRAYSIZE(text_to_send),
+			ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
 		{
 			OutputMemoryStream packet_o;
 			packet_o << ClientMessage::Chat;

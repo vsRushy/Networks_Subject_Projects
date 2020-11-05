@@ -205,7 +205,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				"/kick [username]\n"
 				"/whisper [username] [message]\n"
 				"/change_name [username]\n"
-				"/change_color [R] [G] [B] [A]\n";
+				"/change_color [r] [g] [b] [a] with value range being [0:1]\n";
 			
 			if (!sendPacket(packet_o, socket))
 			{
@@ -225,7 +225,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			}
 
 			users.sort();
-
+			
 			for (const auto& user : users)
 			{
 				user_list.append("\n").append(user);
