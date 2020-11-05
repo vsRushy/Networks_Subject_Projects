@@ -245,6 +245,16 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		break;
 	}
 
+	case ServerMessage::AlreadyUsedName:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(1.0f, 0.1f, 0.3f, 1.0f)));
+
+		break;
+	}
+
 	case ServerMessage::ClientConnected:
 	{
 		std::string message;

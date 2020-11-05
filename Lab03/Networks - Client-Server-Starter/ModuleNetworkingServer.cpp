@@ -322,7 +322,7 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				if (connectedSocket.playerName == playerName)
 				{
 					OutputMemoryStream packet_o;
-					packet_o << ServerMessage::NonWelcome << playerName;
+					packet_o << ServerMessage::AlreadyUsedName << "There is already an user with the name " + playerName;
 
 					if (!sendPacket(packet_o, socket))
 					{

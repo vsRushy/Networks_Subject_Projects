@@ -23,6 +23,7 @@ enum class ServerMessage
 	Clear,
 	ChangeClientColor,
 	RockPaperScissors,
+	AlreadyUsedName,
 	ClientConnected,
 	ClientDisconnected
 };
