@@ -90,22 +90,24 @@ bool ModuleNetworkingClient::gui()
 		ImGui::SameLine();
 		if (ImGui::Button("Logout"))
 		{
-			messages.clear();
 			disconnect();
 			state = ClientState::Stopped;
+			messages.clear();
 		}
 
 		ImGui::Spacing();
 
-		ImGui::BeginChild("Zone", ImVec2(400.0f, 465.0f), true);
+		ImGui::BeginChild("Chat Zone", ImVec2(430.0f, 468.0f), true);
 		for (const Message& message : messages)
 		{
-			ImGui::Text("%s", message.message.c_str());
+			ImGui::TextColored(ImVec4(message.color.r, message.color.g, message.color.b, message.color.a),
+				"%s", message.message.c_str());
 		}
 		ImGui::EndChild();
 
 		char text_to_send[Kilobytes(1)] = "";
-		if (ImGui::InputText("Line", text_to_send, IM_ARRAYSIZE(text_to_send), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
+		if (ImGui::InputText("Line", text_to_send, IM_ARRAYSIZE(text_to_send),
+			ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
 		{
 			OutputMemoryStream packet_o;
 			packet_o << ClientMessage::Chat;
@@ -138,7 +140,20 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, Color(0.0f, 1.0f, 1.0f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::NonWelcome:
+	{
+		std::string messagePlayerName;
+		packet >> messagePlayerName;
+
+		LOG("The user with the name %s already exists.", messagePlayerName.c_str());
+
+		disconnect();
+		state = ClientState::Stopped;
 
 
 		break;
@@ -147,9 +162,9 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 	case ServerMessage::Chat:
 	{
 		std::string message;
-		packet >> message;
+		packet >> message >> playerColor.r >> playerColor.g >> playerColor.b >> playerColor.a;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, playerColor));
 
 		break;
 	}
@@ -159,7 +174,106 @@ void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		messages.push_back(Message(message));
+		messages.push_back(Message(message, Color(0.8f, 0.8f, 0.8f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::List:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.8f, 0.2f, 0.5f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::Disconnect:
+	{
+		disconnect();
+		state = ClientState::Stopped;
+
+		break;
+	}
+
+	case ServerMessage::Whisper:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.3f, 0.3f, 0.3f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::ChangeClientName:
+	{
+		packet >> playerName;
+
+		break;
+	}
+
+	case ServerMessage::InvalidCommand:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(1.0f, 0.0f, 0.0f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::Clear:
+	{
+		messages.clear();
+
+		break;
+	}
+
+	case ServerMessage::ChangeClientColor:
+	{
+		packet >> playerColor.r >> playerColor.g >> playerColor.b >> playerColor.a;
+
+		break;
+	}
+
+	case ServerMessage::RockPaperScissors:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.0f, 0.8f, 0.0f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::AlreadyUsedName:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(1.0f, 0.1f, 0.3f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::ClientConnected:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(1.0f, 1.0f, 0.5f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::ClientDisconnected:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.5f, 0.0f, 1.0f, 1.0f)));
 
 		break;
 	}

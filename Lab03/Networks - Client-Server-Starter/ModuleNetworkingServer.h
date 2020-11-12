@@ -2,7 +2,9 @@
 
 #include "ModuleNetworking.h"
 
-#include <map>
+#define KICK_COMMAND_OFFSET 6
+#define WHISPER_COMMAND_OFFSET 9
+#define CHANGE_NAME_COMMAND_OFFSET 13
 
 class ModuleNetworkingServer : public ModuleNetworking
 {
@@ -40,17 +42,9 @@ private:
 
 	void onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet) override;
 
-	void onSocketDisconnected(SOCKET socket, std::string kicker) override;
+	void onSocketDisconnected(SOCKET socket) override;
 
-	//////////////////////////////////////////////////////////////////////
-	// Commands
-	//////////////////////////////////////////////////////////////////////
 
-	bool Help(SOCKET& socket, std::string p2, std::string message);
-	bool Kick(SOCKET& socket, std::string p2, std::string message);
-	bool List(SOCKET& socket, std::string p2, std::string message);
-	bool Whisper(SOCKET& socket, std::string p2, std::string message);
-	bool ChangeName(SOCKET& socket, std::string p2, std::string message);
 
 	//////////////////////////////////////////////////////////////////////
 	// State
@@ -71,9 +65,9 @@ private:
 		sockaddr_in address;
 		SOCKET socket;
 		std::string playerName;
+		Color playerColor;
 	};
 
 	std::vector<ConnectedSocket> connectedSockets;
-	std::map<std::string, bool (ModuleNetworkingServer::*) (SOCKET& socket, std::string, std::string)> commandMap;
 };
 

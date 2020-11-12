@@ -1,5 +1,19 @@
 #pragma once
 
+struct Color
+{
+	Color()
+	{
+		r = 1.0f; g = 1.0f, b = 1.0f, a = 1.0f;
+	}
+
+	Color(const float& r, const float& g, const float& b, const float& a) : r(r), g(g), b(b), a(a)
+	{
+
+	}
+
+	float r, g, b, a;
+};
 
 class ModuleNetworking : public Module
 {

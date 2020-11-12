@@ -1,5 +1,7 @@
 #include "ModuleNetworkingServer.h"
-#include <sstream>
+
+
+
 
 //////////////////////////////////////////////////////////////////////
 // ModuleNetworkingServer public methods
@@ -7,14 +9,6 @@
 
 bool ModuleNetworkingServer::start(int port)
 {
-
-	// commands mapped with functions
-	commandMap.insert(std::make_pair("/help", &ModuleNetworkingServer::Help));
-	commandMap.insert(std::make_pair("/kick", &ModuleNetworkingServer::Kick));
-	commandMap.insert(std::make_pair("/list", &ModuleNetworkingServer::List));
-	commandMap.insert(std::make_pair("/whisper", &ModuleNetworkingServer::Whisper));
-	commandMap.insert(std::make_pair("/change_name", &ModuleNetworkingServer::ChangeName));
-
 	// TODO(jesus): TCP listen socket stuff
 	// - Create the listenSocket
 	// - Set address reuse
@@ -142,29 +136,45 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string playerName;
 		packet >> playerName;
 
-		// Sound
-		OutputMemoryStream sound_packet;
-		sound_packet << ServerMessage::WelcomeSound;
+		// First check if username exists.
+		for (const auto& connectedSocket : connectedSockets)
+		{
+			if (connectedSocket.playerName == playerName)
+			{
+				OutputMemoryStream packet_o;
+				packet_o << ServerMessage::NonWelcome << playerName;
 
-		for (auto& connectedSocket : connectedSockets)
-			sendPacket(sound_packet, connectedSocket.socket);
-	
-	    // Message
-		OutputMemoryStream packet_o;
+				if (!sendPacket(packet_o, socket))
+				{
+					disconnect();
+					state = ServerState::Stopped;
+
+					break;
+				}
+
+				return; // Exit function
+			}
+		}
 
 		for (auto& connectedSocket : connectedSockets)
 		{
-
+			OutputMemoryStream packet_o;
 
 			if (connectedSocket.socket == socket)
 			{
 				connectedSocket.playerName = playerName;
 
-				packet_o << ServerMessage::Welcome;
-				packet_o << "**************************************************\n"
-							"               WELCOME TO THE CHAT\n"
-							"Please type /help to see the available commands.\n"
-							"**************************************************";
+				packet_o << ServerMessage::Welcome << 
+					"**************************************************\n"
+					"               WELCOME TO THE CHAT\n"
+					"Please type /help to see the available commands.\n"
+					"**************************************************";
+			}
+			else
+			/* Notify and send to al clients the new user that has joined. */
+			{
+				std::string message = "********* " + playerName + " joined *********";
+				packet_o << ServerMessage::ClientConnected << message;
 			}
 
 			if (!sendPacket(packet_o, connectedSocket.socket))
@@ -184,28 +194,250 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 		std::string message;
 		packet >> message;
 
-		// Sound
-		OutputMemoryStream sound_packet;
-		sound_packet << ServerMessage::ChatSound;
-
-		for (auto& connectedSocket : connectedSockets)
-			sendPacket(sound_packet, connectedSocket.socket);
-
-		// check if the first word is a command
-		std::istringstream stream(message);
-		std::string word1; // command
-		std::string word2; // dest player
-		std::string word3; // message
-
-		stream >> word1 >> word2 >> word3; // split message into words 
-
 		/* Command messages */
-		if ((word1.at(0) == '/') && (commandMap.find(word1) != commandMap.end())) // found command in word1
-			
+		if (message.compare("/help") == 0)
 		{
-			if((this->*commandMap.at(word1))(socket, word2, word3) == false) // call the function in the map
+			OutputMemoryStream packet_o;
+			packet_o << ServerMessage::Help << 
+				"****************** Commands list *****************\n"
+				"/help\n"
+				"/list\n"
+				"/kick [username]\n"
+				"/whisper [username] [message]\n"
+				"/change_name [username]\n"
+				"/change_color [r] [g] [b] [a] with value range being [0:1]\n"
+				"/rps (rock paper scissors)\n";
+			
+			if (!sendPacket(packet_o, socket))
+			{
+				disconnect();
+				state = ServerState::Stopped;
+
 				break;
-		
+			}
+		}
+		else if (message.compare("/list") == 0)
+		{
+			std::list<std::string> users;
+			std::string user_list = "********* User list *********";
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				users.push_back(connectedSocket.playerName);
+			}
+
+			users.sort();
+			
+			for (const auto& user : users)
+			{
+				user_list.append("\n").append(user);
+			}
+
+			OutputMemoryStream packet_o;
+			packet_o << ServerMessage::List << user_list;
+
+			if (!sendPacket(packet_o, socket))
+			{
+				disconnect();
+				state = ServerState::Stopped;
+			}
+		}
+		else if (message.find("/kick") == 0)
+		{
+			std::string playerName = message.substr(KICK_COMMAND_OFFSET);
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.playerName == playerName)
+				{
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::Disconnect;
+
+					if (!sendPacket(packet_o, connectedSocket.socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+
+					break;
+				}
+			}
+		}
+		else if (message.find("/whisper") == 0)
+		{
+			std::istringstream words(message);
+			std::string word;
+			std::vector<std::string> word_list;
+
+			while (words >> word)
+			{
+				word_list.push_back(word);
+			}
+
+			// Index of the player is at 1 (command [0], playername[1], message[2])
+			std::string playerName = word_list[1];
+			std::string sentence;
+
+			// Index of the message starts at 2 (command [0], playername[1], message[2])
+			for (int i = 2; i < word_list.size(); ++i)
+			{
+				sentence.append(word_list[i]).append(" ");
+			}
+
+			// First get the socket from who is sending the message and store it.
+			ConnectedSocket fromConnectedSocketSender;
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.socket == socket)
+				{
+					fromConnectedSocketSender = connectedSocket;
+					
+					break;
+				}
+			}
+
+			// Send message to the sender and receiver clients.
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.playerName == playerName)
+				{
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::Whisper <<
+						std::string(fromConnectedSocketSender.playerName).append(" whispers to ").
+						append(connectedSocket.playerName).append(": ").append(sentence);
+
+					if (!sendPacket(packet_o, fromConnectedSocketSender.socket) || !sendPacket(packet_o, connectedSocket.socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+				}
+			}
+		}
+		else if (message.find("/change_name") == 0)
+		{
+			std::string playerName = message.substr(CHANGE_NAME_COMMAND_OFFSET);
+
+			// First check if username already exists.
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.playerName == playerName)
+				{
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::AlreadyUsedName << "There is already an user with the name " + playerName;
+
+					if (!sendPacket(packet_o, socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+				}
+			}
+
+			// Send new username.
+			for (auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.socket == socket)
+				{
+					connectedSocket.playerName = playerName;
+
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::ChangeClientName << playerName;
+
+					if (!sendPacket(packet_o, connectedSocket.socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+				}
+			}
+		}
+		else if (message.find("/clear") == 0)
+		{
+			OutputMemoryStream packet_o;
+			packet_o << ServerMessage::Clear;
+
+			if (!sendPacket(packet_o, socket))
+			{
+				disconnect();
+				state = ServerState::Stopped;
+			}
+		}
+		else if (message.find("/change_color") == 0)
+		{
+			std::istringstream words(message);
+			std::string word;
+			std::vector<std::string> word_list;
+
+			while (words >> word)
+			{
+				word_list.push_back(word);
+			}
+
+			// command [0] R [1] G [2] B[3] A[4]
+			Color playerColor(std::stod(word_list[1]),
+				std::stod(word_list[2]),
+				std::stod(word_list[3]),
+				std::stod(word_list[4]));
+			
+			for (auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.socket == socket)
+				{
+					connectedSocket.playerColor = playerColor;
+
+					OutputMemoryStream packet_o;
+					packet_o << ServerMessage::ChangeClientColor <<
+						playerColor.r << playerColor.g << playerColor.b << playerColor.a;
+
+					if (!sendPacket(packet_o, connectedSocket.socket))
+					{
+						disconnect();
+						state = ServerState::Stopped;
+					}
+				}
+			}
+		}
+		else if (message.find("/rps") == 0)
+		{
+			std::vector<std::string> rps = { "ROCK", "PAPER", "SCISSORS" };
+			int option = rand() % 3;
+
+			// First get the socket from who is sending the message and store it.
+			ConnectedSocket fromConnectedSocketSender;
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				if (connectedSocket.socket == socket)
+				{
+					fromConnectedSocketSender = connectedSocket;
+
+					break;
+				}
+			}
+
+			// Then send the packet to all connectedSockets, which are all connected users.
+			for (const auto& connectedSocket : connectedSockets)
+			{
+				OutputMemoryStream packet_o;
+				packet_o << ServerMessage::RockPaperScissors << fromConnectedSocketSender.playerName + " played: " + rps[option];
+
+				if (!sendPacket(packet_o, connectedSocket.socket))
+				{
+					disconnect();
+					state = ServerState::Stopped;
+				}
+			}
+		}
+		/* Invalid command */
+		else if (message.find("/") == 0)
+		{
+			OutputMemoryStream packet_o;
+			packet_o << ServerMessage::InvalidCommand <<
+				"Unknown command. Please enter /help for more information.";
+
+			if (!sendPacket(packet_o, socket))
+			{
+				disconnect();
+				state = ServerState::Stopped;
+			}
 		}
 		else
 		/* Message without command */
@@ -217,6 +449,8 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 				if (connectedSocket.socket == socket)
 				{
 					fromConnectedSocketSender = connectedSocket;
+
+					break;
 				}
 			}
 
@@ -225,8 +459,9 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 			{
 				OutputMemoryStream packet_o;
 
-				packet_o << ServerMessage::Chat;
-				packet_o << fromConnectedSocketSender.playerName + ": " + message;
+				packet_o << ServerMessage::Chat << fromConnectedSocketSender.playerName + ": " + message <<
+					fromConnectedSocketSender.playerColor.r << fromConnectedSocketSender.playerColor.g <<
+					fromConnectedSocketSender.playerColor.b << fromConnectedSocketSender.playerColor.a;
 
 				if (!sendPacket(packet_o, connectedSocket.socket))
 				{
@@ -248,113 +483,36 @@ void ModuleNetworkingServer::onSocketReceivedData(SOCKET socket, const InputMemo
 	}
 }
 
-void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket, std::string kicker)
+void ModuleNetworkingServer::onSocketDisconnected(SOCKET socket)
 {
-	// Packet to other users
-	OutputMemoryStream global_packet;
-	std::string message;
-
-	// erase
+	// Remove the connected socket from the list
 	for (auto it = connectedSockets.begin(); it != connectedSockets.end(); ++it)
 	{
 		auto &connectedSocket = *it;
 		if (connectedSocket.socket == socket)
 		{
-			// Packet to disconnected user
-			OutputMemoryStream individual_packet;
-			individual_packet << ServerMessage::Disconnect;
-			sendPacket(individual_packet, connectedSocket.socket);
+			std::string playerName = connectedSocket.playerName;
 
-			// capture the name
-			message = connectedSocket.playerName;
-
-			// erase it
 			connectedSockets.erase(it);
+
+			// Send and notify to all clients
+			for (const auto& connectedSocketC : connectedSockets)
+			{
+				OutputMemoryStream packet_o;
+
+				std::string message = "********** " + playerName + " left **********";
+				packet_o << ServerMessage::ClientDisconnected;
+				packet_o << message;
+
+				if (!sendPacket(packet_o, connectedSocketC.socket))
+				{
+					disconnect();
+					state = ServerState::Stopped;
+				}
+			}
+
 			break;
 		}
 	}
-
-	// disconnect notification
-	if (kicker.empty())
-	{
-		global_packet << ServerMessage::UserDisconnected;
-		message += " has disconnected :(";
-	}
-	else // kick notification
-	{
-		global_packet << ServerMessage::UserKicked;
-		message += " has been kicked by ";
-		message += kicker;
-	}
-
-	global_packet << message.c_str();
-
-	for (auto& connectedSocket : connectedSockets)
-		sendPacket(global_packet, connectedSocket.socket);
-
-}
-
-bool ModuleNetworkingServer::Help(SOCKET& socket, std::string p2, std::string message)
-{
-	bool ret = true;
-
-	OutputMemoryStream packet_o;
-	packet_o << ServerMessage::Help;
-	packet_o << "*******************Commands list******************\n"
-		"/help\n"
-		"/kick [username]\n"
-		"/list\n"
-		"/whisper [username] [message]\n"
-		"change_name [username]\n";
-
-	if (!sendPacket(packet_o, socket))
-	{
-		disconnect();
-		state = ServerState::Stopped;
-
-		ret = false;
-	}
-
-	return ret;
-}
-
-bool ModuleNetworkingServer::Kick(SOCKET& socket, std::string p2, std::string message) // socket is the origin and p2 the kicked player
-{
-	bool ret = true;
-
-	int kicker = 666, kicked = 666;
-	for (int i = 0; i < connectedSockets.size(); ++i)
-	{
-		if (connectedSockets.at(i).playerName == p2)
-			kicked = i;
-		else if (connectedSockets.at(i).socket == socket)
-			kicker = i;
- 
-	}
-
-	onSocketDisconnected(connectedSockets.at(kicked).socket, connectedSockets.at(kicker).playerName); 
-
-	return ret;
-}
-
-bool ModuleNetworkingServer::List(SOCKET& socket, std::string p2, std::string message)
-{
-	bool ret = true;
-
-	return ret;
-}
-
-bool ModuleNetworkingServer::Whisper(SOCKET& socket, std::string p2, std::string message)
-{
-	bool ret = true;
-
-	return ret;
-}
-
-bool ModuleNetworkingServer::ChangeName(SOCKET& socket, std::string p2, std::string message)
-{
-	bool ret = true;
-
-	return ret;
 }
 

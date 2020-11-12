@@ -1,5 +1,12 @@
 #pragma once
 
+enum class UI_STYLE
+{
+	DARK,
+	GREEN,
+	DARK_BLUE
+};
+
 class ModuleUI : public Module
 {
 public:
@@ -20,4 +27,7 @@ public:
 	// Public methods
 
 	LRESULT HandleWindowsEvents(UINT msg, WPARAM wParam, LPARAM lParam);
+
+private:
+	void SetUIStyle(UI_STYLE style);
 };

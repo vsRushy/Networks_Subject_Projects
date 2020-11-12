@@ -165,7 +165,7 @@ bool ModuleNetworking::preUpdate()
 		onSocketDisconnected(s, empty);
 		sockets.erase(std::find(sockets.begin(), sockets.end(), s));
 	}
-
+	
 	return true;
 }
 

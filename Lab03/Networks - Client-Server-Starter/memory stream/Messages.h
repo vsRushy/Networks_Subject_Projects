@@ -12,12 +12,19 @@ enum class ClientMessage
 enum class ServerMessage
 {
 	Welcome,
+	NonWelcome,
 	Chat,
 	Help,
-	WelcomeSound,
-	ChatSound,
-	UserDisconnected, // another
-	UserKicked, // another
-	Disconnect // myself
+	List,
+	Disconnect,
+	Whisper,
+	ChangeClientName,
+	InvalidCommand,
+	Clear,
+	ChangeClientColor,
+	RockPaperScissors,
+	AlreadyUsedName,
+	ClientConnected,
+	ClientDisconnected
 };
 
