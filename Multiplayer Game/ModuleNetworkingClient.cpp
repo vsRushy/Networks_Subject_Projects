@@ -103,6 +103,7 @@ void ModuleNetworkingClient::onGui()
 void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, const sockaddr_in &fromAddress)
 {
 	// TODO(you): UDP virtual connection lab session
+	secondsSinceLastReceivedPacket = 0.0f;
 
 	uint32 protoId;
 	packet >> protoId;
@@ -141,7 +142,11 @@ void ModuleNetworkingClient::onUpdate()
 
 
 	// TODO(you): UDP virtual connection lab session
-
+	secondsSinceLastReceivedPacket += Time.deltaTime;
+	if(secondsSinceLastReceivedPacket > DISCONNECT_TIMEOUT_SECONDS)
+	{
+		disconnect();
+	}
 
 	if (state == ClientState::Connecting)
 	{
@@ -163,6 +168,18 @@ void ModuleNetworkingClient::onUpdate()
 	else if (state == ClientState::Connected)
 	{
 		// TODO(you): UDP virtual connection lab session
+		secondsSinceLastPing += Time.deltaTime;
+		if (secondsSinceLastPing > PING_INTERVAL_SECONDS)
+		{
+			std::string message("Hello");
+
+			OutputMemoryStream packet_o;
+			packet_o << PROTOCOL_ID << ServerMessage::Ping << message;
+
+			sendPacket(packet_o, serverAddress);
+
+			secondsSinceLastPing = 0.0f;
+		}
 
 		// Process more inputs if there's space
 		if (inputDataBack - inputDataFront < ArrayCount(inputData))
