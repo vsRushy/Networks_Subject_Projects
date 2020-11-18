@@ -140,6 +140,28 @@ void ModuleNetworkingClient::onUpdate()
 	if (state == ClientState::Stopped) return;
 
 
+	/* " Disconnect the client if the time since the last received packet is greater than DISCONNECT_
+	TIMEOUT_SECONDS" */
+
+	if (secondsSinceLastInputDelivery > DISCONNECT_TIMEOUT_SECONDS)
+		disconnect();
+
+	/* Send a ‘Ping’ packet to the server every PING_INTERVAL_SECONDS */
+	static float ping_interval_counter = 0.f;
+	if ((ping_interval_counter += Time.deltaTime) >= PING_INTERVAL_SECONDS)
+	{
+		ping_interval_counter = 0.f;
+
+		std::string message = "Ping";
+		OutputMemoryStream pingPacket;
+		pingPacket << PROTOCOL_ID;
+		pingPacket << ServerMessage::Ping;
+		pingPacket << message;
+		sendPacket(pingPacket, serverAddress);
+	}
+	
+
+
 	// TODO(you): UDP virtual connection lab session
 
 
