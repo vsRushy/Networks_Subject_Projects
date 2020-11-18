@@ -51,6 +51,9 @@ void ModuleNetworkingClient::onStart()
 
 	secondsSinceLastHello = 9999.0f;
 	secondsSinceLastInputDelivery = 0.0f;
+
+	secondsSinceLastReceivedPacket = 0.0f;
+	secondsSinceLastPing = 0.0f;
 }
 
 void ModuleNetworkingClient::onGui()
@@ -140,10 +143,9 @@ void ModuleNetworkingClient::onUpdate()
 {
 	if (state == ClientState::Stopped) return;
 
-
 	// TODO(you): UDP virtual connection lab session
 	secondsSinceLastReceivedPacket += Time.deltaTime;
-	if(secondsSinceLastReceivedPacket > DISCONNECT_TIMEOUT_SECONDS)
+	if(secondsSinceLastReceivedPacket >= DISCONNECT_TIMEOUT_SECONDS)
 	{
 		disconnect();
 	}
@@ -169,13 +171,10 @@ void ModuleNetworkingClient::onUpdate()
 	{
 		// TODO(you): UDP virtual connection lab session
 		secondsSinceLastPing += Time.deltaTime;
-		if (secondsSinceLastPing > PING_INTERVAL_SECONDS)
+		if (secondsSinceLastPing >= PING_INTERVAL_SECONDS)
 		{
-			std::string message("Hello");
-
 			OutputMemoryStream packet_o;
-			packet_o << PROTOCOL_ID << ServerMessage::Ping << message;
-
+			packet_o << PROTOCOL_ID << ServerMessage::Ping;
 			sendPacket(packet_o, serverAddress);
 
 			secondsSinceLastPing = 0.0f;
