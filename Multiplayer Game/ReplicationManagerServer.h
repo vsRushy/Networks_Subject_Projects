@@ -11,6 +11,8 @@ enum class ReplicationAction
 
 struct ReplicationCommand
 {
+	ReplicationCommand(const ReplicationAction& action, const uint32& networkId);
+
 	ReplicationAction action;
 	uint32 networkId;
 };
@@ -18,9 +20,14 @@ struct ReplicationCommand
 class ReplicationManagerServer
 {
 public:
-	void create(uint32 networkId);
-	void update(uint32 networkId);
-	void destroy(uint32 networkId);
+	void create(const uint32& networkId);
+	void update(const uint32& networkId);
+	void destroy(const uint32& networkId);
 
 	void write(OutputMemoryStream& packet);
+
+	void remove(const uint32& networkId);
+
+private:
+	std::unordered_map<uint32, ReplicationCommand> replicationCommands;
 };
