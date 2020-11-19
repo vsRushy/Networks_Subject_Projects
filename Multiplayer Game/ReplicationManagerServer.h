@@ -11,6 +11,7 @@ enum class ReplicationAction
 
 struct ReplicationCommand
 {
+	ReplicationCommand();
 	ReplicationCommand(const ReplicationAction& action, const uint32& networkId);
 
 	ReplicationAction action;
