@@ -24,7 +24,7 @@ public:
 	void update(const uint32& networkId);
 	void destroy(const uint32& networkId);
 
-	void write(OutputMemoryStream& packet);
+	void write(OutputMemoryStream& packet) const;
 
 	void remove(const uint32& networkId);
 

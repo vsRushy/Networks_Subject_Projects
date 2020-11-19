@@ -4,5 +4,9 @@
 class ReplicationManagerClient
 {
 public:
-	void read(const InputMemoryStream& packet);
+	void create(const InputMemoryStream& packet, const uint32& networkId) const;
+	void update(const InputMemoryStream& packet, const uint32& networkId) const;
+	void destroy(const InputMemoryStream& packet, const uint32& networkId) const;
+
+	void read(const InputMemoryStream& packet) const;
 };
