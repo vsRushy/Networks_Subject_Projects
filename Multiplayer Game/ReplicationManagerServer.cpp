@@ -1,19 +1,7 @@
 #include "Networks.h"
 #include "ReplicationManagerServer.h"
 
-ReplicationCommand::ReplicationCommand()
-	: action(ReplicationAction::None), networkId(NULL)
-{
-
-}
-
 // TODO(you): World state replication lab session
-ReplicationCommand::ReplicationCommand(const ReplicationAction& action, const uint32& networkId)
-	: action(action), networkId(networkId)
-{
-
-}
-
 void ReplicationManagerServer::create(const uint32& networkId)
 {
 	replicationCommands.insert_or_assign(networkId, ReplicationCommand(ReplicationAction::Create, networkId));
@@ -31,6 +19,8 @@ void ReplicationManagerServer::destroy(const uint32& networkId)
 
 void ReplicationManagerServer::write(OutputMemoryStream& packet) const
 {
+	packet << PROTOCOL_ID;
+
 	for (const auto& replicationCommand : replicationCommands)
 	{
 		uint32 networkId = replicationCommand.first;
@@ -47,17 +37,17 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet) const
 		case ReplicationAction::Update:
 		{
 			packet << gameObject->position.x << gameObject->position.y <<
-			gameObject->size.x << gameObject->size.y <<
-			gameObject->angle <<
-			gameObject->tag;
+				gameObject->size.x << gameObject->size.y <<
+				gameObject->angle << gameObject->tag <<
+				gameObject->networkInterpolationEnabled << gameObject->state;
 
 			break;
 		}
 
 		case ReplicationAction::Destroy:
 		{
+			// TODO
 			
-
 			break;
 		}
 
