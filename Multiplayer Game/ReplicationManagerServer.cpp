@@ -20,6 +20,7 @@ void ReplicationManagerServer::destroy(const uint32& networkId)
 void ReplicationManagerServer::write(OutputMemoryStream& packet) const
 {
 	packet << PROTOCOL_ID;
+	packet << ClientMessage::Input;
 
 	for (const auto& replicationCommand : replicationCommands)
 	{

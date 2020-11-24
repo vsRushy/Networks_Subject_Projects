@@ -7,9 +7,6 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 {
 	while (packet.RemainingByteCount() > 0)
 	{
-		uint32 protocol_id;
-		packet >> protocol_id;
-
 		ReplicationCommand replicationCommand;
 
 		packet >> replicationCommand.networkId;
