@@ -1,5 +1,19 @@
 #pragma once
 
+struct Color
+{
+	Color()
+	{
+		r = 1.0f; g = 1.0f, b = 1.0f, a = 1.0f;
+	}
+
+	Color(const float& r, const float& g, const float& b, const float& a) : r(r), g(g), b(b), a(a)
+	{
+
+	}
+
+	float r, g, b, a;
+};
 
 class ModuleNetworking : public Module
 {
@@ -25,11 +39,11 @@ private:
 
 	virtual void onSocketConnected(SOCKET socket, const sockaddr_in &socketAddress) { }
 
-	virtual void onSocketReceivedData(SOCKET s, byte * data) = 0;
+	virtual void onSocketReceivedData(SOCKET s, const InputMemoryStream& packet) = 0;
 
-	virtual void onSocketDisconnected(SOCKET s) = 0;
+	virtual void onSocketDisconnected(SOCKET s, std::string kicker = 0) = 0;
 
-
+	
 
 protected:
 
@@ -40,5 +54,7 @@ protected:
 	void disconnect();
 
 	static void reportError(const char *message);
+
+	static bool sendPacket(const OutputMemoryStream& packet, SOCKET socket);
 };
 

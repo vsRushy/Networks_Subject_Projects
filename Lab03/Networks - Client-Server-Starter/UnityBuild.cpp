@@ -2,6 +2,7 @@
 
 #include "Networks.h"
 
+#include "memory stream/MemoryStream.cpp"
 #include "ModuleNetworking.cpp"
 #include "ModuleNetworkingClient.cpp"
 #include "ModuleNetworkingServer.cpp"
@@ -21,3 +22,4 @@
 #include "ScreenGame.cpp"
 #include "Application.cpp"
 #include "main.cpp"
+

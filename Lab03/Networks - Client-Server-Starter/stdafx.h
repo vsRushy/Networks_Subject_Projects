@@ -21,6 +21,7 @@
 #include <xinput.h>
 
 #include <fstream>
+#include <sstream>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -34,8 +35,10 @@
 #include <stddef.h> // ptrdiff_t on osx
 #include <stdlib.h>
 #include <string.h>
+#include <list>
 #include <limits.h>
 #include <assert.h>
+#include <time.h>
 #include <math.h>  // ldexp, pow
 
 // dear imgui: standalone example application for DirectX 9

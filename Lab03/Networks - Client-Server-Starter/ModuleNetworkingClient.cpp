@@ -1,15 +1,6 @@
-/* Sockets TCP - Client */
+#include "ModuleNetworkingClient.h"
+#include "Audio.h"
 
-#pragma comment (lib, "ws2_32.lib")
-
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-
-#define IP "127.0.0.1"
-#define PORT 8000
-
-#include "helper.h"
-#define MAX_SIMUL_CONNECTIONS 100
 
 bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPort, const char *pplayerName)
 {
@@ -22,37 +13,25 @@ bool  ModuleNetworkingClient::start(const char * serverAddressStr, int serverPor
 	// - Add the created socket to the managed list of sockets using addSocket()
 
 	// If everything was ok... change the state
-	// Initialization
 
-	WSADATA wsaData;
-	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult == SOCKET_ERROR)
+	s = socket(AF_INET, SOCK_STREAM, 0);
+	if (s == INVALID_SOCKET)
 	{
-		PrintWSErrorAndExit("Can't initialize sockets library.");
+		reportError("Can't create socket.");
+		return false;
 	}
 
-	// -----------------------------------------------------------
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_port = htons(serverPort);
+	inet_pton(AF_INET, serverAddressStr, &serverAddress.sin_addr);
 
-
-	ModuleNetworkingClient::socket = ::socket(AF_INET, SOCK_STREAM, 0);
-	if (ModuleNetworkingClient::socket == INVALID_SOCKET)
+	if (connect(s, (const sockaddr*)&serverAddress, sizeof(serverAddress)) == SOCKET_ERROR)
 	{
-		PrintWSErrorAndExit("Can't create TCP socket.");
+		reportError("Can't connect.");
+		return false;
 	}
 
-	struct sockaddr_in remoteAddr;
-	remoteAddr.sin_family = AF_INET;
-	remoteAddr.sin_port = htons(PORT);
-	const char* remoteAddrStr = IP;
-	inet_pton(AF_INET, remoteAddrStr, &remoteAddr.sin_addr);
-
-	iResult = connect(ModuleNetworkingClient::socket, (const sockaddr*)&remoteAddr, sizeof(remoteAddr));
-	if (iResult == SOCKET_ERROR)
-	{
-		PrintWSErrorAndExit("Can't connect socket.");
-	}
-
-	addSocket(ModuleNetworkingClient::socket);
+	addSocket(s);
 
 	state = ClientState::Start;
 
@@ -69,13 +48,27 @@ bool ModuleNetworkingClient::update()
 	if (state == ClientState::Start)
 	{
 		// TODO(jesus): Send the player name to the server
+		OutputMemoryStream packet;
+		packet << ClientMessage::Hello;
+		packet << playerName;
 
-		if ((send(ModuleNetworkingClient::socket, playerName.c_str(), playerName.length(), 0)) == SOCKET_ERROR)
+		if (sendPacket(packet, s))
 		{
-			PrintWSErrorAndExit("Can't connect socket.");
+			state = ClientState::Logging;
 		}
-
+		else
+		{
+			disconnect();
+			state = ClientState::Stopped;
+		}
 	}
+
+	return true;
+}
+
+bool ModuleNetworkingClient::cleanUp()
+{
+	messages.clear();
 
 	return true;
 }
@@ -91,20 +84,259 @@ bool ModuleNetworkingClient::gui()
 		ImVec2 texSize(400.0f, 400.0f * tex->height / tex->width);
 		ImGui::Image(tex->shaderResource, texSize);
 
-		ImGui::Text("%s connected to the server...", playerName.c_str());
+		ImGui::Text("Welcome to the chat %s!", playerName.c_str());
 
+
+		ImGui::SameLine();
+		if (ImGui::Button("Logout"))
+		{
+			disconnect();
+			state = ClientState::Stopped;
+			messages.clear();
+		}
+
+		ImGui::Spacing();
+
+		ImGui::BeginChild("Chat Zone", ImVec2(430.0f, 468.0f), true);
+		for (const Message& message : messages)
+		{
+			ImGui::TextColored(ImVec4(message.color.r, message.color.g, message.color.b, message.color.a),
+				"%s", message.message.c_str());
+		}
+		ImGui::EndChild();
+
+		char text_to_send[Kilobytes(1)] = "";
+		if (ImGui::InputText("Line", text_to_send, IM_ARRAYSIZE(text_to_send),
+			ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_AutoSelectAll))
+		{
+			OutputMemoryStream packet_o;
+			packet_o << ClientMessage::Chat;
+			packet_o << text_to_send;
+
+			if (!sendPacket(packet_o, s))
+			{
+				disconnect();
+				state = ClientState::Stopped;
+			}
+
+			ImGui::SetKeyboardFocusHere(-1);
+		}
+		
 		ImGui::End();
 	}
 
 	return true;
 }
 
-void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, byte * data)
+void ModuleNetworkingClient::onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet)
 {
-	state = ClientState::Stopped;
+	ServerMessage serverMessage;
+	packet >> serverMessage;
+
+	switch (serverMessage)
+	{
+	case ServerMessage::Welcome:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.0f, 1.0f, 1.0f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::NonWelcome:
+	{
+		std::string messagePlayerName;
+		packet >> messagePlayerName;
+
+		LOG("The user with the name %s already exists.", messagePlayerName.c_str());
+
+		disconnect();
+		state = ClientState::Stopped;
+
+
+		break;
+	}
+
+	case ServerMessage::Chat:
+	{
+		std::string message;
+		packet >> message >> playerColor.r >> playerColor.g >> playerColor.b >> playerColor.a;
+
+		messages.push_back(Message(message, playerColor));
+
+		break;
+	}
+
+	case ServerMessage::Help:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.8f, 0.8f, 0.8f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::List:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.8f, 0.2f, 0.5f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::Disconnect:
+	{
+		disconnect();
+		state = ClientState::Stopped;
+
+		break;
+	}
+
+	case ServerMessage::Whisper:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.3f, 0.3f, 0.3f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::ChangeClientName:
+	{
+		packet >> playerName;
+
+		break;
+	}
+
+	case ServerMessage::InvalidCommand:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(1.0f, 0.0f, 0.0f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::Clear:
+	{
+		messages.clear();
+
+		break;
+	}
+
+	case ServerMessage::ChangeClientColor:
+	{
+		packet >> playerColor.r >> playerColor.g >> playerColor.b >> playerColor.a;
+
+		break;
+	}
+
+	case ServerMessage::RockPaperScissors:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.0f, 0.8f, 0.0f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::AlreadyUsedName:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(1.0f, 0.1f, 0.3f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::ClientConnected:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(1.0f, 1.0f, 0.5f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::ClientDisconnected:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message, Color(0.5f, 0.0f, 1.0f, 1.0f)));
+
+		break;
+	}
+
+	case ServerMessage::WelcomeSound:
+	{
+
+		// Play Audio
+		Audio::PlayWindowsSound(Audio::audioMap.at("Welcome").c_str());
+
+
+		break;
+	}
+	case ServerMessage::ChatSound:
+	{
+	
+		// Play Audio
+		Audio::PlayWindowsSound(Audio::audioMap.at("Chat").c_str());
+
+		break;
+	}
+	case ServerMessage::UserDisconnected:  
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message));
+
+		// Play Audio
+		Audio::PlayWindowsSound(Audio::audioMap.at("UserDisconnected").c_str());
+
+
+		break;
+	}
+	case ServerMessage::UserKicked:
+	{
+		std::string message;
+		packet >> message;
+
+		messages.push_back(Message(message));
+
+		// Play Audio
+		Audio::PlayWindowsSound(Audio::audioMap.at("UserKicked").c_str());
+
+		break;
+	}
+	case ServerMessage::Disconnect:
+	{
+		messages.clear();
+		disconnect();
+		state = ClientState::Stopped;
+
+		break;
+	}
+
+	default:
+	{
+		break;
+	}
+	}
 }
 
-void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket)
+void ModuleNetworkingClient::onSocketDisconnected(SOCKET socket, std::string kicker)
 {
 	state = ClientState::Stopped;
 }

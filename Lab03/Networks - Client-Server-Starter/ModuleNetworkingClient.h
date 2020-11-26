@@ -23,6 +23,7 @@ private:
 	//////////////////////////////////////////////////////////////////////
 
 	bool update() override;
+	bool cleanUp() override;
 
 	bool gui() override;
 
@@ -32,9 +33,9 @@ private:
 	// ModuleNetworking virtual methods
 	//////////////////////////////////////////////////////////////////////
 
-	void onSocketReceivedData(SOCKET socket, byte * data) override;
+	void onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet) override;
 
-	void onSocketDisconnected(SOCKET socket) override;
+	void onSocketDisconnected(SOCKET socket, std::string = 0) override;
 
 
 
@@ -49,11 +50,25 @@ private:
 		Logging
 	};
 
+	class Message
+	{
+	public:
+		Message(const std::string& message, const Color& color /*= Color()*/) : message(message), color(color)
+		{
+			
+		}
+
+		std::string message;
+		Color color;
+	};
+
 	ClientState state = ClientState::Stopped;
 
 	sockaddr_in serverAddress = {};
-	SOCKET socket = INVALID_SOCKET;
+	SOCKET s; // Changed name from socket to s to avoid conflicts.
 
 	std::string playerName;
+	Color playerColor;
+	std::list<Message> messages;
 };
 

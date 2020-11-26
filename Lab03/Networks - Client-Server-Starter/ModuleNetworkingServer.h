@@ -2,6 +2,10 @@
 
 #include "ModuleNetworking.h"
 
+#define KICK_COMMAND_OFFSET 6
+#define WHISPER_COMMAND_OFFSET 9
+#define CHANGE_NAME_COMMAND_OFFSET 13
+
 class ModuleNetworkingServer : public ModuleNetworking
 {
 public:
@@ -36,7 +40,7 @@ private:
 
 	void onSocketConnected(SOCKET socket, const sockaddr_in &socketAddress) override;
 
-	void onSocketReceivedData(SOCKET socket, byte * data) override;
+	void onSocketReceivedData(SOCKET socket, const InputMemoryStream& packet) override;
 
 	void onSocketDisconnected(SOCKET socket) override;
 
@@ -61,6 +65,7 @@ private:
 		sockaddr_in address;
 		SOCKET socket;
 		std::string playerName;
+		Color playerColor;
 	};
 
 	std::vector<ConnectedSocket> connectedSockets;

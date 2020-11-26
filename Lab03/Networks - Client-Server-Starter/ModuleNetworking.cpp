@@ -1,7 +1,7 @@
 #include "Networks.h"
 #include "ModuleNetworking.h"
+
 #include <list>
-#include "Helper.h"
 
 static uint8 NumModulesUsingWinsock = 0;
 
@@ -21,6 +21,19 @@ void ModuleNetworking::reportError(const char* inOperationDesc)
 		0, NULL);
 
 	ELOG("Error %s: %d- %s", inOperationDesc, errorNum, lpMsgBuf);
+}
+
+bool ModuleNetworking::sendPacket(const OutputMemoryStream& packet, SOCKET socket)
+{
+	int result = send(socket, packet.GetBufferPtr(), packet.GetSize(), 0);
+	if(result == SOCKET_ERROR)
+	{
+		reportError("Can't send.");
+		
+		return false;
+	}
+
+	return true;
 }
 
 void ModuleNetworking::disconnect()
@@ -61,74 +74,16 @@ bool ModuleNetworking::preUpdate()
 	byte incomingDataBuffer[incomingDataBufferSize];
 
 	// TODO(jesus): select those sockets that have a read operation available
-	fd_set readfds;
-	FD_ZERO(&readfds);
-	// Fill the set
-	for (auto s : sockets)
-		FD_SET(s, &readfds);
-
-	// Timeout (return immediately)
-	struct timeval timeout;
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 0;
-	// Select (check for readability)
-	int res = select(0, &readfds, nullptr, nullptr, &timeout);
-	if (res == SOCKET_ERROR) {
-		reportError("select 4 read");
-	}
 
 	// TODO(jesus): for those sockets selected, check wheter or not they are
-// a listen socket or a standard socket and perform the corresponding
-// operation (accept() an incoming connection or recv() incoming data,
-// respectively).
-// On accept() success, communicate the new connected socket to the
-// subclass (use the callback onSocketConnected()), and add the new
-// connected socket to the managed list of sockets.
-// On recv() success, communicate the incoming data received to the
-// subclass (use the callback onSocketReceivedData()).
-
-
-	// Fill this array with disconnected sockets
-	std::list<SOCKET> disconnectedSockets;
-	// Read selected sockets
-	for (auto s : sockets)
-	{
-		if (FD_ISSET(s, &readfds)) {
-			if (isListenSocket(s)) { // Is the server socket
-			// Accept stuff
-
-				sockaddr_in remoteAddr;
-				int remote_size = sizeof(remoteAddr);
-				SOCKET cs = accept(s, (sockaddr*)&remoteAddr, &remote_size);
-				if (cs == INVALID_SOCKET)
-					PrintWSErrorAndExit("Can't accept socket.");
-				
-
-				else
-				{
-					onSocketConnected(s, remoteAddr);
-					addSocket(s);
-				}
-			}
-			else { // Is a client socket
-		 // Recv stuff
-				char buffer[256];
-				int buffer_len = sizeof(buffer);
-				int iResult = recv(s, buffer, buffer_len, 0);
-
-				if ((iResult == SOCKET_ERROR) || (iResult == 0))
-				{
-					PrintWSErrorAndExit("Disonnected socket!");
-					disconnectedSockets.push_back(s);
-				}
-				
-				else
-					onSocketReceivedData(s, (byte*)buffer);
-
-
-			}
-		}
-	}
+	// a listen socket or a standard socket and perform the corresponding
+	// operation (accept() an incoming connection or recv() incoming data,
+	// respectively).
+	// On accept() success, communicate the new connected socket to the
+	// subclass (use the callback onSocketConnected()), and add the new
+	// connected socket to the managed list of sockets.
+	// On recv() success, communicate the incoming data received to the
+	// subclass (use the callback onSocketReceivedData()).
 
 	// TODO(jesus): handle disconnections. Remember that a socket has been
 	// disconnected from its remote end either when recv() returned 0,
@@ -139,15 +94,78 @@ bool ModuleNetworking::preUpdate()
 	// TODO(jesus): Finally, remove all disconnected sockets from the list
 	// of managed sockets.
 
+	fd_set readSet;
+	FD_ZERO(&readSet);
+
+	for (auto s : sockets)
+	{
+		FD_SET(s, &readSet);
+	}
+
+	struct timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
+
+	int res = select(0, &readSet, nullptr, nullptr, &timeout);
+	if (res == SOCKET_ERROR)
+	{
+		reportError("Can't select.");
+
+		return false;
+	}
+
+	std::list<SOCKET> disconnectedSockets;
+
+	for (auto s : sockets)
+	{
+		if (FD_ISSET(s, &readSet))
+		{
+			if (isListenSocket(s))
+			{
+				sockaddr_in remoteAddress;
+				int remoteAddressSize = sizeof(remoteAddress);
+				SOCKET connectedSocket = accept(s, (sockaddr*)&remoteAddress, &remoteAddressSize);
+
+				if (connectedSocket == INVALID_SOCKET)
+				{
+					reportError("Can't accept connected socket.");
+				}
+				else
+				{
+					onSocketConnected(connectedSocket, remoteAddress);
+					addSocket(connectedSocket);
+				}
+			}
+			else
+			{
+				InputMemoryStream packet;
+				int iResult = recv(s, packet.GetBufferPtr(), packet.GetCapacity(), 0);
+
+				if (iResult == SOCKET_ERROR)
+				{
+					reportError("Can't receive.");
+					disconnectedSockets.push_back(s);
+				}
+				else if (iResult == 0)
+				{
+					disconnectedSockets.push_back(s);
+				}
+				else
+				{
+					packet.SetSize(static_cast<uint32>(iResult));
+					onSocketReceivedData(s, packet);
+				}
+			}
+		}
+	}
+
 	for (auto s : disconnectedSockets)
 	{
-		onSocketDisconnected(s);
-		sockets.erase(std::remove(sockets.begin(), sockets.end(), s), sockets.end());
+		std::string empty;
+		onSocketDisconnected(s, empty);
+		sockets.erase(std::find(sockets.begin(), sockets.end(), s));
 	}
-		
-
-
-
+	
 	return true;
 }
 
