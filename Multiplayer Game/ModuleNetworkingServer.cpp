@@ -186,8 +186,19 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						unpackInputControllerButtons(inputData.buttonBits, proxy->gamepad);
 						proxy->gameObject->behaviour->onInput(proxy->gamepad);
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
+
+						// send the last processed input sequence number to the client
+						OutputMemoryStream lastProcessedInputPacket;
+						lastProcessedInputPacket << PROTOCOL_ID;
+						lastProcessedInputPacket << ServerMessage::LastInput;
+						lastProcessedInputPacket << inputData.sequenceNumber;
+						sendPacket(lastProcessedInputPacket, fromAddress);
+
 					}
 				}
+
+
+
 			}
 		}
 		// TODO(you): UDP virtual connection lab session
