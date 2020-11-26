@@ -241,9 +241,7 @@ void ModuleNetworkingServer::onUpdate()
 					secondsSinceLastPing = 0.0f;
 
 					OutputMemoryStream pingPacket;
-
 					pingPacket << PROTOCOL_ID << ServerMessage::Ping;
-
 					sendPacket(pingPacket, clientProxy.address);
 				}
 
@@ -254,7 +252,9 @@ void ModuleNetworkingServer::onUpdate()
 				}
 
 				// TODO(you): World state replication lab session
-				
+				OutputMemoryStream packet_o;
+				clientProxy.replicationManagerServer.write(packet_o);
+				sendPacket(packet_o, clientProxy.address);
 				
 				// TODO(you): Reliability on top of UDP lab session
 			}

@@ -43,7 +43,7 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 		{
 			gameObject = App->modLinkingContext->getNetworkGameObject(replicationCommand.networkId);
 			App->modLinkingContext->unregisterNetworkGameObject(gameObject);
-
+			
 			App->modGameObject->Destroy(gameObject);
 
 			break;

@@ -112,11 +112,11 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	packet >> protoId;
 	if (protoId != PROTOCOL_ID) return;
 
-	ServerMessage message;
-	packet >> message;
-
 	if (state == ClientState::Connecting)
 	{
+		ServerMessage message;
+		packet >> message;
+
 		if (message == ServerMessage::Welcome)
 		{
 			packet >> playerId;
