@@ -1,4 +1,5 @@
 #pragma once
+#include <list>
 
 // TODO(you): Reliability on top of UDP lab session
 class DeliveryManager;
@@ -32,8 +33,17 @@ public:
 
 private:
 	// Prívate members (sender side)
-	// - The next outgoing sequence number // - A list of pending deliveries
+	// - The next outgoing sequence number
+	uint32 nextOutgoingSequenceNumber = 0;
+
+	// - A list of pending deliveries
+	std::list<DeliveryDelegate::Delivery*> pendingDeliveries;
+
 	// Prívate members (receiver side)
-	// - The next expected sequence number // - A list of sequence numbers pending ack
+	// - The next expected sequence number 
+	uint32 nextExpectedSequenceNumber = 0;
+
+	// - A list of sequence numbers pending ack
+	std::list<uint32> sequenceNumbersPendingAck;
 
 };
