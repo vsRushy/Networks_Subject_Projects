@@ -105,6 +105,13 @@ void ModuleNetworkingClient::onGui()
 
 void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, const sockaddr_in &fromAddress)
 {
+
+	// TODO(you): Reliability on top of UDP lab session
+	
+	// First of all we check the sequence number
+	if (deliveryManager.processSequenceNumber(packet) == false)
+		return;
+
 	// TODO(you): UDP virtual connection lab session
 	secondsSinceLastReceivedPacket = 0.0f;
 
@@ -136,7 +143,6 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 		// TODO(you): World state replication lab session
 		//replicationManagerClient.read(packet);
 
-		// TODO(you): Reliability on top of UDP lab session
 		switch (message)
 		{
 		case ServerMessage::LastInput:
@@ -150,6 +156,8 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 			break;
 		}
 	}
+
+	
 }
 
 void ModuleNetworkingClient::onUpdate()
@@ -216,8 +224,6 @@ void ModuleNetworkingClient::onUpdate()
 			packet << PROTOCOL_ID;
 			packet << ClientMessage::Input;
 
-			// TODO(you): Reliability on top of UDP lab session
-
 			for (uint32 i = inputDataFront; i < inputDataBack; ++i)
 			{
 				InputPacketData &inputPacketData = inputData[i % ArrayCount(inputData)];
@@ -227,8 +233,13 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.buttonBits;
 			}
 
+			// TODO(you): Reliability on top of UDP lab session
+			deliveryManager.writeSequenceNumbersPendingAck(packet);
+
 			// Clear the queue
-			inputDataFront = inputDataBack; //TODO(us) delete this (reliability pdf)
+		//	inputDataFront = inputDataBack; 
+		
+		// deleted: "By deleting this, we allow to send repeated packets until receiving the last input p"
 
 			sendPacket(packet, serverAddress);
 		}

@@ -10,7 +10,7 @@ public:
 	virtual void onDeliveryFailure(DeliveryManager* deliveryManager);
 	struct Delivery
 	{
-		uint32 sequenceHumber = 0;
+		uint32 sequenceNumber = 0;
 		double dispatchTime = 0.0;
 		DeliveryDelegate* delegate = nullptr;
 	};
