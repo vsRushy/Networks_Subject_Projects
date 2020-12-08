@@ -29,9 +29,20 @@ DeliveryDelegate::Delivery* DeliveryManager::writeSequenceNumber(OutputMemoryStr
 	return d;
 }
 
-bool DeliveryManager::processSequenceNumber(const InputMemoryStream& packet)
+bool DeliveryManager::processSequenceNumber(const InputMemoryStream& packet) // called from client (ClientMessage)
 {
 	// capture the packet's sequence number
+	uint32 protoId = UINT32_MAX;
+	packet >> protoId;
+	if (protoId != PROTOCOL_ID) return false;
+
+	ClientMessage message;
+	packet >> message;
+
+	// Input packest are the only client packets that write the sequence number as of right now
+	if (message != ClientMessage::Input)
+		return false;
+
 	uint32 packetSequenceNumber = UINT32_MAX;
 	packet >> packetSequenceNumber;
 
@@ -66,7 +77,7 @@ Process the acknowledged seq. numbers processAckdSequenceNumbers()
 	- Remove the delivery
 */
 
-void DeliveryManager::processAckdSequenceNumbers(const InputMemoryStream& packet) // what are we supposed to do with the packet?? 
+void DeliveryManager::processAckdSequenceNumbers(const InputMemoryStream& packet)  // called from client (ServerMessage)
 {
 	/*uint32 protoId;
 	packet >> protoId;

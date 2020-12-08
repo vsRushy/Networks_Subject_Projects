@@ -111,7 +111,7 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	// First of all we check the sequence number
 	if (deliveryManager.processSequenceNumber(packet) == false)
 		return;
-
+		
 	// TODO(you): UDP virtual connection lab session
 	secondsSinceLastReceivedPacket = 0.0f;
 
@@ -234,10 +234,10 @@ void ModuleNetworkingClient::onUpdate()
 			}
 
 			// TODO(you): Reliability on top of UDP lab session
-			deliveryManager.writeSequenceNumbersPendingAck(packet);
+		    deliveryManager.writeSequenceNumbersPendingAck(packet);
 
 			// Clear the queue
-		//	inputDataFront = inputDataBack; 
+		    //inputDataFront = inputDataBack; 
 		
 		// deleted: "By deleting this, we allow to send repeated packets until receiving the last input p"
 
