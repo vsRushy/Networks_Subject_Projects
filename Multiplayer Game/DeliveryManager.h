@@ -22,7 +22,7 @@ public:
 	// For senders to write a new seq. numbers into a packet 
 	DeliveryDelegate::Delivery * writeSequenceNumber(OutputMemoryStream fcpacket);
 	// For receivers to process the seq. number from an incoming packet 
-	bool processSequenceNumber(const InputMemoryStream &packet);
+	bool processSequenceNumber(uint32 packetSequenceNumber = UINT32_MAX);
 	// For receivers to write ack'ed seq. numbers into a packet 
 	bool hasSequenceNumbersPendingAck() const;
 	void writeSequenceNumbersPendingAck(OutputMemoryStream Apacket);

@@ -29,31 +29,16 @@ DeliveryDelegate::Delivery* DeliveryManager::writeSequenceNumber(OutputMemoryStr
 	return d;
 }
 
-bool DeliveryManager::processSequenceNumber(const InputMemoryStream& packet) // called from client (ClientMessage)
+bool DeliveryManager::processSequenceNumber(uint32 packetSequenceNumber) // called from client (ServerMessage received)
 {
-	// capture the packet's sequence number
-	uint32 protoId = UINT32_MAX;
-	packet >> protoId;
-	if (protoId != PROTOCOL_ID) return false;
-
-	ClientMessage message;
-	packet >> message;
-
-	// Input packest are the only client packets that write the sequence number as of right now
-	if (message != ClientMessage::Input)
-		return false;
-
-	uint32 packetSequenceNumber = UINT32_MAX;
-	packet >> packetSequenceNumber;
-
 	// If it fits with the expected number...
 	if (packetSequenceNumber >= nextExpectedSequenceNumber)
 	{
 		// ...  push the number to pending acks
 		sequenceNumbersPendingAck.push_back(packetSequenceNumber);
+		nextExpectedSequenceNumber++;
 		return true;
 	}
-		
 
 	return false;
 }
@@ -66,7 +51,7 @@ bool DeliveryManager::hasSequenceNumbersPendingAck() const
 
 void DeliveryManager::writeSequenceNumbersPendingAck(OutputMemoryStream Apacket)
 {
-	
+
 }
 
 
@@ -77,7 +62,7 @@ Process the acknowledged seq. numbers processAckdSequenceNumbers()
 	- Remove the delivery
 */
 
-void DeliveryManager::processAckdSequenceNumbers(const InputMemoryStream& packet)  // called from client (ServerMessage)
+void DeliveryManager::processAckdSequenceNumbers(const InputMemoryStream& packet)  
 {
 	/*uint32 protoId;
 	packet >> protoId;
@@ -111,6 +96,8 @@ void DeliveryManager::processAckdSequenceNumbers(const InputMemoryStream& packet
 
 		}
 	}
+
+
 }
 
 void DeliveryManager::processTimedOutPackets()

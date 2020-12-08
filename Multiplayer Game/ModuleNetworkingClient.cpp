@@ -106,12 +106,7 @@ void ModuleNetworkingClient::onGui()
 void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, const sockaddr_in &fromAddress)
 {
 
-	// TODO(you): Reliability on top of UDP lab session
 	
-	// First of all we check the sequence number
-	if (deliveryManager.processSequenceNumber(packet) == false)
-		return;
-		
 	// TODO(you): UDP virtual connection lab session
 	secondsSinceLastReceivedPacket = 0.0f;
 
@@ -145,11 +140,17 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 
 		switch (message)
 		{
+			// TODO(you): Reliability on top of UDP lab session
 		case ServerMessage::LastInput:
 		{
-			uint32 lastProcessedInput = 0;
-			packet >> lastProcessedInput;
-			inputDataFront = lastProcessedInput;
+			uint32 packetSequenceNumber = UINT32_MAX;
+		    packet >> packetSequenceNumber;
+
+			if (deliveryManager.processSequenceNumber(packetSequenceNumber) == false)
+				break;
+
+			inputDataFront = packetSequenceNumber;
+
 			break;
 		}
 		default:
@@ -234,13 +235,11 @@ void ModuleNetworkingClient::onUpdate()
 			}
 
 			// TODO(you): Reliability on top of UDP lab session
-		    deliveryManager.writeSequenceNumbersPendingAck(packet);
+		  //  deliveryManager.writeSequenceNumbersPendingAck(packet);
 
-			// Clear the queue
-		    //inputDataFront = inputDataBack; 
+			// Clear the queue --> Not anymore! "By deleting this, we allow to send repeated packets until receiving the last input p"
+		    // inputDataFront = inputDataBack;  
 		
-		// deleted: "By deleting this, we allow to send repeated packets until receiving the last input p"
-
 			sendPacket(packet, serverAddress);
 		}
 
