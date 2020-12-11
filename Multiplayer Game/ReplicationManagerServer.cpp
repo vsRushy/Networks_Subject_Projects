@@ -6,35 +6,36 @@ void ReplicationManagerServer::create(const uint32& networkId)
 {
 	std::unordered_map<uint32, ReplicationCommand>::const_iterator item = replicationCommands.find(networkId);
 	if (item != replicationCommands.end())
-	{
-		replicationCommands.insert(std::make_pair(networkId, ReplicationCommand(ReplicationAction::Create, networkId)));
-	}
+		return; // Already exists
+	else
+		replicationCommands[networkId] = ReplicationCommand(ReplicationAction::Create, networkId);
 }
 
 void ReplicationManagerServer::update(const uint32& networkId)
 {
 	std::unordered_map<uint32, ReplicationCommand>::const_iterator item = replicationCommands.find(networkId);
 	if (item != replicationCommands.end())
-	{
-		replicationCommands.insert(std::make_pair(networkId, ReplicationCommand(ReplicationAction::Update, networkId)));
-	}
+		return; // Already exists
+	else if (replicationCommands[networkId].action != ReplicationAction::Create &&
+		replicationCommands[networkId].action != ReplicationAction::Destroy)
+		replicationCommands[networkId] = ReplicationCommand(ReplicationAction::Update, networkId);
 }
 
 void ReplicationManagerServer::destroy(const uint32& networkId)
 {
 	std::unordered_map<uint32, ReplicationCommand>::const_iterator item = replicationCommands.find(networkId);
 	if (item != replicationCommands.end())
-	{
-		replicationCommands.insert(std::make_pair(networkId, ReplicationCommand(ReplicationAction::Destroy, networkId)));
-	}
+		return; // Already exists
+	else
+		replicationCommands[networkId].action = ReplicationAction::Destroy;
 }
 
-void ReplicationManagerServer::write(OutputMemoryStream& packet) const
+void ReplicationManagerServer::write(OutputMemoryStream& packet)
 {
 	packet << PROTOCOL_ID;
 	packet << ServerMessage::Replication;
 
-	for (const auto& replicationCommand : replicationCommands)
+	for (auto& replicationCommand : replicationCommands)
 	{
 		uint32 networkId = replicationCommand.first;
 		packet << networkId;
@@ -69,6 +70,8 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet) const
 			break;
 		}
 		}
+
+		replicationCommand.second.action = ReplicationAction::None;
 	}
 }
 
