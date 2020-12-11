@@ -4,23 +4,35 @@
 // TODO(you): World state replication lab session
 void ReplicationManagerServer::create(const uint32& networkId)
 {
-	replicationCommands.insert_or_assign(networkId, ReplicationCommand(ReplicationAction::Create, networkId));
+	std::unordered_map<uint32, ReplicationCommand>::const_iterator item = replicationCommands.find(networkId);
+	if (item != replicationCommands.end())
+	{
+		replicationCommands.insert(std::make_pair(networkId, ReplicationCommand(ReplicationAction::Create, networkId)));
+	}
 }
 
 void ReplicationManagerServer::update(const uint32& networkId)
 {
-	replicationCommands.insert_or_assign(networkId, ReplicationCommand(ReplicationAction::Update, networkId));
+	std::unordered_map<uint32, ReplicationCommand>::const_iterator item = replicationCommands.find(networkId);
+	if (item != replicationCommands.end())
+	{
+		replicationCommands.insert(std::make_pair(networkId, ReplicationCommand(ReplicationAction::Update, networkId)));
+	}
 }
 
 void ReplicationManagerServer::destroy(const uint32& networkId)
 {
-	replicationCommands.insert_or_assign(networkId, ReplicationCommand(ReplicationAction::Destroy, networkId));
+	std::unordered_map<uint32, ReplicationCommand>::const_iterator item = replicationCommands.find(networkId);
+	if (item != replicationCommands.end())
+	{
+		replicationCommands.insert(std::make_pair(networkId, ReplicationCommand(ReplicationAction::Destroy, networkId)));
+	}
 }
 
 void ReplicationManagerServer::write(OutputMemoryStream& packet) const
 {
 	packet << PROTOCOL_ID;
-	packet << ClientMessage::Input;
+	packet << ServerMessage::Replication;
 
 	for (const auto& replicationCommand : replicationCommands)
 	{
