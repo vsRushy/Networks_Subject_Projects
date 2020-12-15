@@ -25,6 +25,10 @@ public:
 
 	bool finishedLoading = false;
 
+// TODO (custom) replication
+public:
+	Texture* GetTextureByPath(std::string fileName) const;
+
 private:
 
 	bool init() override;

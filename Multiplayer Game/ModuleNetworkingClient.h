@@ -14,7 +14,8 @@ public:
 
 	void setPlayerInfo(const char *playerName, uint8 spaceshipType);
 
-
+	// TODO (custom) (replication)
+	uint32 getNetworkId() const;
 
 private:
 

@@ -1,4 +1,5 @@
 #include "Networks.h"
+#include "ModuleResources.h"
 
 
 #if defined(USE_TASK_MANAGER)
@@ -10,6 +11,21 @@ void ModuleResources::TaskLoadTexture::execute()
 
 #endif
 
+
+Texture* ModuleResources::GetTextureByPath(std::string fileName) const
+{
+	if (fileName.compare("background.jpg") == 0) return background;
+	else if (fileName.compare("space_background.jpg") == 0) return space;
+	else if (fileName.compare("asteroid1.png") == 0) return asteroid1;
+	else if (fileName.compare("asteroid2.png") == 0) return asteroid2;
+	else if (fileName.compare("spacecraft1.png") == 0) return spacecraft1;
+	else if (fileName.compare("spacecraft2.png") == 0) return spacecraft2;
+	else if (fileName.compare("spacecraft3.png") == 0) return spacecraft3;
+	else if (fileName.compare("laser.png") == 0) return laser;
+	else if (fileName.compare("explosion1.png") == 0) return explosion1;
+
+	return nullptr;
+}
 
 bool ModuleResources::init()
 {
