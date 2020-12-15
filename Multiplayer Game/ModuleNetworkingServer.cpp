@@ -265,14 +265,10 @@ void ModuleNetworkingServer::onUpdate()
 				}
 
 				// TODO(you): World state replication lab session
-				static int replication_packet_interval = 0.2f; // Every 0.2 seconds a replication packet is sent
-				static int replication_packet_counter = 0.0f;
-
-				replication_packet_counter += Time.deltaTime;
-
-				if (replication_packet_counter >= replication_packet_interval)
+				clientProxy.secondsSinceLastReplicationPacket += Time.deltaTime;
+				if (clientProxy.secondsSinceLastReplicationPacket >= REPLICATION_INTERVAL_SECONDS)
 				{
-					replication_packet_counter = 0.0f;
+					clientProxy.secondsSinceLastReplicationPacket = 0.0f;
 
 					OutputMemoryStream replicationPacket;
 					clientProxy.replicationManagerServer.write(replicationPacket);
