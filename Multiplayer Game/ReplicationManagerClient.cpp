@@ -23,7 +23,8 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 
 			packet >> gameObject->position.x >> gameObject->position.y >>
 				gameObject->size.x >> gameObject->size.y >>
-				gameObject->angle;
+				gameObject->angle >> gameObject->tag >>
+				gameObject->networkInterpolationEnabled;
 
 			bool has_sprite = false;
 			packet >> has_sprite;
@@ -45,7 +46,8 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 
 			packet >> gameObject->position.x >> gameObject->position.y >>
 				gameObject->size.x >> gameObject->size.y >>
-				gameObject->angle;
+				gameObject->angle >> gameObject->tag >>
+				gameObject->networkInterpolationEnabled;
 
 			bool has_sprite = false;
 			packet >> has_sprite;

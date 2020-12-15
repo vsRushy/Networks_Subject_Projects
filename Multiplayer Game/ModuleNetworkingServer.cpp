@@ -252,9 +252,7 @@ void ModuleNetworkingServer::onUpdate()
 					secondsSinceLastPing = 0.0f;
 
 					OutputMemoryStream pingPacket;
-
 					pingPacket << PROTOCOL_ID << ServerMessage::Ping;
-
 					sendPacket(pingPacket, clientProxy.address);
 				}
 

@@ -42,7 +42,8 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 		{
 			packet << gameObject->position.x << gameObject->position.y <<
 				gameObject->size.x << gameObject->size.y <<
-				gameObject->angle;
+				gameObject->angle << gameObject->tag <<
+				gameObject->networkInterpolationEnabled;
 
 			if (gameObject->sprite != nullptr)
 			{
