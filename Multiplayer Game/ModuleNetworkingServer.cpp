@@ -268,8 +268,12 @@ void ModuleNetworkingServer::onUpdate()
 				static int replication_packet_interval = 0.2f; // Every 0.2 seconds a replication packet is sent
 				static int replication_packet_counter = 0.0f;
 
+				replication_packet_counter += Time.deltaTime;
+
 				if (replication_packet_counter >= replication_packet_interval)
 				{
+					replication_packet_counter = 0.0f;
+
 					OutputMemoryStream replicationPacket;
 					clientProxy.replicationManagerServer.write(replicationPacket);
 					sendPacket(replicationPacket, clientProxy.address);

@@ -4,30 +4,20 @@
 // TODO(you): World state replication lab session
 void ReplicationManagerServer::create(const uint32& networkId)
 {
-	std::unordered_map<uint32, ReplicationCommand>::const_iterator item = replicationCommands.find(networkId);
-	if (item != replicationCommands.end())
-		return; // Already exists
-	else
-		replicationCommands[networkId] = ReplicationCommand(ReplicationAction::Create, networkId);
+	replicationCommands[networkId] = ReplicationCommand(ReplicationAction::Create, networkId);
 }
 
 void ReplicationManagerServer::update(const uint32& networkId)
 {
-	std::unordered_map<uint32, ReplicationCommand>::const_iterator item = replicationCommands.find(networkId);
-	if (item != replicationCommands.end())
-		return; // Already exists
-	else if (replicationCommands[networkId].action != ReplicationAction::Create &&
-		replicationCommands[networkId].action != ReplicationAction::Destroy)
-		replicationCommands[networkId] = ReplicationCommand(ReplicationAction::Update, networkId);
+	if (replicationCommands[networkId].action == ReplicationAction::Create || replicationCommands[networkId].action == ReplicationAction::Destroy)
+		return;
+
+	replicationCommands[networkId].action = ReplicationAction::Update;
 }
 
 void ReplicationManagerServer::destroy(const uint32& networkId)
 {
-	std::unordered_map<uint32, ReplicationCommand>::const_iterator item = replicationCommands.find(networkId);
-	if (item != replicationCommands.end())
-		return; // Already exists
-	else
-		replicationCommands[networkId].action = ReplicationAction::Destroy;
+	replicationCommands[networkId].action = ReplicationAction::Destroy;
 }
 
 void ReplicationManagerServer::write(OutputMemoryStream& packet)
@@ -52,8 +42,18 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 		{
 			packet << gameObject->position.x << gameObject->position.y <<
 				gameObject->size.x << gameObject->size.y <<
-				gameObject->angle << gameObject->tag <<
-				gameObject->networkInterpolationEnabled << gameObject->state;
+				gameObject->angle;
+
+			if (gameObject->sprite != nullptr)
+			{
+				Sprite* sprite = gameObject->sprite;
+				packet << true << std::string(sprite->texture->filename);
+				//packet << sprite->order;
+			}
+			else
+			{
+				packet << false;
+			}
 
 			break;
 		}

@@ -23,8 +23,19 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 
 			packet >> gameObject->position.x >> gameObject->position.y >>
 				gameObject->size.x >> gameObject->size.y >>
-				gameObject->angle >> gameObject->tag >>
-				gameObject->networkInterpolationEnabled >> gameObject->state;
+				gameObject->angle;
+
+			bool has_sprite = false;
+			packet >> has_sprite;
+			if (has_sprite)
+			{
+				Sprite* sprite = gameObject->sprite;
+				sprite = App->modRender->addSprite(gameObject);
+				std::string texture_name;
+				packet >> texture_name;
+				sprite->texture = App->modResources->GetTexture(texture_name);
+				//packet >> sprite->order;
+			}
 
 			break;
 		}
@@ -34,8 +45,17 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 
 			packet >> gameObject->position.x >> gameObject->position.y >>
 				gameObject->size.x >> gameObject->size.y >>
-				gameObject->angle >> gameObject->tag >>
-				gameObject->networkInterpolationEnabled >> gameObject->state;
+				gameObject->angle;
+
+			bool has_sprite = false;
+			packet >> has_sprite;
+			if (has_sprite)
+			{
+				Sprite* sprite = gameObject->sprite;
+				std::string texture_name;
+				packet >> texture_name;
+				//packet >> sprite->order;
+			}
 
 			break;
 		}
