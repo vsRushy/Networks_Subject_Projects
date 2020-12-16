@@ -38,7 +38,6 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 		switch (replicationAction)
 		{
 		case ReplicationAction::Create:
-		case ReplicationAction::Update:
 		{
 			packet << gameObject->position.x << gameObject->position.y <<
 				gameObject->size.x << gameObject->size.y <<
@@ -50,6 +49,35 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 				Sprite* sprite = gameObject->sprite;
 				packet << true << std::string(sprite->texture->filename);
 				//packet << sprite->order;
+			}
+			else
+			{
+				packet << false;
+			}
+
+			if (gameObject->behaviour != nullptr)
+			{
+				packet << true << gameObject->behaviour->type();
+				gameObject->behaviour->write(packet);
+			}
+			else
+			{
+				packet << false;
+			}
+
+			break;
+		}
+		case ReplicationAction::Update:
+		{
+			packet << gameObject->position.x << gameObject->position.y <<
+				gameObject->size.x << gameObject->size.y <<
+				gameObject->angle << gameObject->tag <<
+				gameObject->networkInterpolationEnabled;
+
+			if (gameObject->behaviour != nullptr)
+			{
+				packet << true;
+				gameObject->behaviour->write(packet);
 			}
 			else
 			{

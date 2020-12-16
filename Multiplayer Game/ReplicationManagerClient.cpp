@@ -38,6 +38,17 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 				//packet >> sprite->order;
 			}
 
+			bool has_behaviour = false;
+			packet >> has_behaviour;
+			if (has_behaviour)
+			{
+				BehaviourType b_type = BehaviourType::None;
+				packet >> b_type;
+
+				gameObject->behaviour = App->modBehaviour->addBehaviour(b_type, gameObject);
+				gameObject->behaviour->read(packet);
+			}
+
 			break;
 		}
 		case ReplicationAction::Update:
@@ -49,14 +60,11 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 				gameObject->angle >> gameObject->tag >>
 				gameObject->networkInterpolationEnabled;
 
-			bool has_sprite = false;
-			packet >> has_sprite;
-			if (has_sprite)
+			bool has_behaviour = false;
+			packet >> has_behaviour;
+			if (has_behaviour)
 			{
-				Sprite* sprite = gameObject->sprite;
-				std::string texture_name;
-				packet >> texture_name;
-				//packet >> sprite->order;
+				gameObject->behaviour->read(packet);
 			}
 
 			break;
