@@ -30,12 +30,22 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 			packet >> has_sprite;
 			if (has_sprite)
 			{
-				Sprite* sprite = gameObject->sprite;
-				sprite = App->modRender->addSprite(gameObject);
+				gameObject->sprite;
+				gameObject->sprite = App->modRender->addSprite(gameObject);
 				std::string texture_name;
 				packet >> texture_name;
-				sprite->texture = App->modResources->GetTexture(texture_name);
+				gameObject->sprite->texture = App->modResources->GetTexture(texture_name);
 				//packet >> sprite->order;
+			}
+
+			bool has_collider = false;
+			packet >> has_collider;
+			if (has_collider)
+			{
+				ColliderType collider = ColliderType::None;
+				packet >> collider;
+				gameObject->collider = App->modCollision->addCollider(collider, gameObject);
+				packet >> gameObject->collider->isTrigger;
 			}
 
 			bool has_behaviour = false;

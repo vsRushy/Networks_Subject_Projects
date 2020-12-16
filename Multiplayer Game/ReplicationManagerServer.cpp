@@ -46,9 +46,17 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 
 			if (gameObject->sprite != nullptr)
 			{
-				Sprite* sprite = gameObject->sprite;
-				packet << true << std::string(sprite->texture->filename);
+				packet << true << std::string(gameObject->sprite->texture->filename);
 				//packet << sprite->order;
+			}
+			else
+			{
+				packet << false;
+			}
+
+			if (gameObject->collider != nullptr)
+			{
+				packet << true << gameObject->collider->type << gameObject->collider->isTrigger;
 			}
 			else
 			{
