@@ -30,7 +30,6 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 			packet >> has_sprite;
 			if (has_sprite)
 			{
-				gameObject->sprite;
 				gameObject->sprite = App->modRender->addSprite(gameObject);
 				std::string texture_name;
 				packet >> texture_name;
