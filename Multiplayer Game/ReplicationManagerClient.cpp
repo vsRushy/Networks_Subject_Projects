@@ -64,16 +64,19 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 		{
 			gameObject = App->modLinkingContext->getNetworkGameObject(replicationCommand.networkId);
 
-			packet >> gameObject->position.x >> gameObject->position.y >>
-				gameObject->size.x >> gameObject->size.y >>
-				gameObject->angle >> gameObject->tag >>
-				gameObject->networkInterpolationEnabled;
-
-			bool has_behaviour = false;
-			packet >> has_behaviour;
-			if (has_behaviour)
+			if (gameObject != nullptr)
 			{
-				gameObject->behaviour->read(packet);
+				packet >> gameObject->position.x >> gameObject->position.y >>
+					gameObject->size.x >> gameObject->size.y >>
+					gameObject->angle >> gameObject->tag >>
+					gameObject->networkInterpolationEnabled;
+
+				bool has_behaviour = false;
+				packet >> has_behaviour;
+				if (has_behaviour)
+				{
+					gameObject->behaviour->read(packet);
+				}
 			}
 
 			break;
