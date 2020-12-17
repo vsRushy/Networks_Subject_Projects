@@ -1,7 +1,11 @@
 #include "ModuleNetworkingServer.h"
+#include "Helper.h"
 
 
+#pragma comment (lib, "ws2_32.lib")
 
+#define PORT 8000
+#define MAX_SIMUL_CONNECTIONS 100
 
 //////////////////////////////////////////////////////////////////////
 // ModuleNetworkingServer public methods
@@ -16,39 +20,41 @@ bool ModuleNetworkingServer::start(int port)
 	// - Enter in listen mode
 	// - Add the listenSocket to the managed list of sockets using addSocket()
 
-	listenSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (listenSocket == INVALID_SOCKET)
+	// Initialization
+	WSADATA wsaData;
+	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult == SOCKET_ERROR)
 	{
-		reportError("Can't create socket.");
-		return false;
+		PrintWSErrorAndExit("Can't initialize sockets library.");
 	}
+
+	// -----------------------------------------------------------
+
+	SOCKET s = socket(AF_INET, SOCK_STREAM, 0);
+	if (s == INVALID_SOCKET)
+	{
+		PrintWSErrorAndExit("Can't create TCP socket.");
+	}
+
+	struct sockaddr_in bindAddr;
+	bindAddr.sin_family = AF_INET;
+	bindAddr.sin_port = htons(PORT);
+	bindAddr.sin_addr.S_un.S_addr = INADDR_ANY;
 
 	int enable = 1;
-	if (setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(int)) == SOCKET_ERROR)
-	{
-		reportError("Can't set socket options.");
-		return false;
-	}
+	iResult = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char*)&enable, sizeof(int));
+	if (iResult == SOCKET_ERROR)
+		PrintWSErrorAndExit("Can't set socket options.");
 
-	sockaddr_in address;
-	address.sin_family = AF_INET;
-	address.sin_port = htons(port);
-	address.sin_addr.S_un.S_addr = ADDR_ANY;
+	iResult = bind(s, (const sockaddr*)&bindAddr, sizeof(bindAddr));
+	if (iResult == SOCKET_ERROR)
+		PrintWSErrorAndExit("Can't bind socket.");
 
-	if (bind(listenSocket, (const sockaddr*)&address, sizeof(address)) == SOCKET_ERROR)
-	{
-		reportError("Can't bind socket.");
-		return false;
-	}
+	iResult = listen(s, MAX_SIMUL_CONNECTIONS); // Is this already defined somewhere? 
+	if (iResult == SOCKET_ERROR)
+		PrintWSErrorAndExit("Can't bind socket.");
 
-	int simultaneousConnections = 5;
-	if (listen(listenSocket, simultaneousConnections) == SOCKET_ERROR)
-	{
-		reportError("Socket can't listen.");
-		return false;
-	}
-
-	addSocket(listenSocket);
+	addSocket(s);
 
 	state = ServerState::Listening;
 

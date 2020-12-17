@@ -108,11 +108,11 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	packet >> protoId;
 	if (protoId != PROTOCOL_ID) return;
 
+	ServerMessage message;
+	packet >> message;
+
 	if (state == ClientState::Connecting)
 	{
-		ServerMessage message;
-		packet >> message;
-
 		if (message == ServerMessage::Welcome)
 		{
 			packet >> playerId;
@@ -129,10 +129,34 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	}
 	else if (state == ClientState::Connected)
 	{
-		// TODO(you): World state replication lab session
+		switch (message)
+		{
+			// TODO(you): Reliability on top of UDP lab session
+		case ServerMessage::LastInput:
+		{
+			uint32 packetSequenceNumber = UINT32_MAX;
+		    packet >> packetSequenceNumber;
 
-		// TODO(you): Reliability on top of UDP lab session
+			if (deliveryManager.processSequenceNumber(packetSequenceNumber) == false)
+				break;
+
+			inputDataFront = packetSequenceNumber;
+
+			break;
+		}
+		case ServerMessage::Replication:
+		{
+			// TODO(you): World state replication lab session
+			replicationManagerClient.read(packet);
+
+			break;
+		}
+		default:
+			break;
+		}
 	}
+
+	
 }
 
 void ModuleNetworkingClient::onUpdate()
@@ -146,7 +170,7 @@ void ModuleNetworkingClient::onUpdate()
 	if (secondsSinceLastInputDelivery > DISCONNECT_TIMEOUT_SECONDS)
 		disconnect();
 
-	/* Send a ‘Ping’ packet to the server every PING_INTERVAL_SECONDS */
+	/* Send a ï¿½Pingï¿½ packet to the server every PING_INTERVAL_SECONDS */
 	static float ping_interval_counter = 0.f;
 	if ((ping_interval_counter += Time.deltaTime) >= PING_INTERVAL_SECONDS)
 	{
@@ -209,8 +233,6 @@ void ModuleNetworkingClient::onUpdate()
 			packet << PROTOCOL_ID;
 			packet << ClientMessage::Input;
 
-			// TODO(you): Reliability on top of UDP lab session
-
 			for (uint32 i = inputDataFront; i < inputDataBack; ++i)
 			{
 				InputPacketData &inputPacketData = inputData[i % ArrayCount(inputData)];
@@ -220,9 +242,12 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.buttonBits;
 			}
 
-			// Clear the queue
-			inputDataFront = inputDataBack;
+			// TODO(you): Reliability on top of UDP lab session
+		  //  deliveryManager.writeSequenceNumbersPendingAck(packet);
 
+			// Clear the queue --> Not anymore! "By deleting this, we allow to send repeated packets until receiving the last input p"
+		    // inputDataFront = inputDataBack;  
+		
 			sendPacket(packet, serverAddress);
 		}
 

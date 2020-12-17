@@ -186,8 +186,18 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						unpackInputControllerButtons(inputData.buttonBits, proxy->gamepad);
 						proxy->gameObject->behaviour->onInput(proxy->gamepad);
 						proxy->nextExpectedInputSequenceNumber = inputData.sequenceNumber + 1;
+
+						// send the last processed input sequence number to the client
+						OutputMemoryStream lastProcessedInputPacket;
+						lastProcessedInputPacket << PROTOCOL_ID;
+						lastProcessedInputPacket << ServerMessage::LastInput;
+						lastProcessedInputPacket << inputData.sequenceNumber;
+						sendPacket(lastProcessedInputPacket, fromAddress);
 					}
 				}
+
+
+
 			}
 		}
 		// TODO(you): UDP virtual connection lab session
@@ -235,7 +245,7 @@ void ModuleNetworkingServer::onUpdate()
 					onConnectionReset(clientProxy.address);
 				}
 
-				// Send a ‘Ping’ packet to all clients every PING_INTERVAL_SECONDS
+				// Send a ï¿½Pingï¿½ packet to all clients every PING_INTERVAL_SECONDS
 				if (secondsSinceLastPing >= PING_INTERVAL_SECONDS)
 				{
 					secondsSinceLastPing = 0.0f;
@@ -252,10 +262,16 @@ void ModuleNetworkingServer::onUpdate()
 				}
 
 				// TODO(you): World state replication lab session
-				OutputMemoryStream packet_o;
-				clientProxy.replicationManagerServer.write(packet_o);
-				sendPacket(packet_o, clientProxy.address);
-				
+				clientProxy.secondsSinceLastReplicationPacket += Time.deltaTime;
+				if (clientProxy.secondsSinceLastReplicationPacket >= REPLICATION_INTERVAL_SECONDS)
+				{
+					clientProxy.secondsSinceLastReplicationPacket = 0.0f;
+
+					OutputMemoryStream replicationPacket;
+					clientProxy.replicationManagerServer.write(replicationPacket);
+					sendPacket(replicationPacket, clientProxy.address);
+				}
+
 				// TODO(you): Reliability on top of UDP lab session
 			}
 		}

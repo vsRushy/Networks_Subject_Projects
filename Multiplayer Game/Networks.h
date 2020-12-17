@@ -42,6 +42,8 @@
 #define PACKET_DELIVERY_TIMEOUT_SECONDS                 0.5f
 #define DEFAULT_PACKET_SIZE                     Kilobytes(4)
 #define PING_INTERVAL_SECONDS                           0.5f
+// TODO (custom) (replication)
+#define REPLICATION_INTERVAL_SECONDS					0.01f
 
 
 ////////////////////////////////////////////////////////////////////////

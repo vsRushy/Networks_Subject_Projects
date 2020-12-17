@@ -51,7 +51,12 @@ private:
 		GameObject *gameObject = nullptr;
 
 		// TODO(you): UDP virtual connection lab session
+		float secondsSinceLastReceivedPacket = 0.0f;
+
 		// TODO(you): World state replication lab session
+		ReplicationManagerServer replicationManagerServer;
+		float secondsSinceLastReplicationPacket = 0.0f;
+
 		// TODO(you): Reliability on top of UDP lab session
 
 		uint32 nextExpectedInputSequenceNumber = 0;
@@ -122,7 +127,7 @@ private:
 
 
 	// TODO(you): UDP virtual connection lab session
-
+	float secondsSinceLastPing = 0.0f;
 };
 
 
