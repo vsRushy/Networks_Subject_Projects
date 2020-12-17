@@ -9,10 +9,8 @@ void ReplicationManagerServer::create(const uint32& networkId)
 
 void ReplicationManagerServer::update(const uint32& networkId)
 {
-	if (replicationCommands[networkId].action == ReplicationAction::Create || replicationCommands[networkId].action == ReplicationAction::Destroy)
-		return;
-
-	replicationCommands[networkId].action = ReplicationAction::Update;
+	if (replicationCommands[networkId].action != ReplicationAction::Create || replicationCommands[networkId].action != ReplicationAction::Destroy)
+		replicationCommands[networkId].action = ReplicationAction::Update;
 }
 
 void ReplicationManagerServer::destroy(const uint32& networkId)
