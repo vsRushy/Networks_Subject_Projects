@@ -193,7 +193,6 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 						lastProcessedInputPacket << ServerMessage::LastInput;
 						lastProcessedInputPacket << inputData.sequenceNumber;
 						sendPacket(lastProcessedInputPacket, fromAddress);
-
 					}
 				}
 
@@ -246,15 +245,13 @@ void ModuleNetworkingServer::onUpdate()
 					onConnectionReset(clientProxy.address);
 				}
 
-				// Send a ‘Ping’ packet to all clients every PING_INTERVAL_SECONDS
+				// Send a ï¿½Pingï¿½ packet to all clients every PING_INTERVAL_SECONDS
 				if (secondsSinceLastPing >= PING_INTERVAL_SECONDS)
 				{
 					secondsSinceLastPing = 0.0f;
 
 					OutputMemoryStream pingPacket;
-
 					pingPacket << PROTOCOL_ID << ServerMessage::Ping;
-
 					sendPacket(pingPacket, clientProxy.address);
 				}
 
@@ -265,8 +262,16 @@ void ModuleNetworkingServer::onUpdate()
 				}
 
 				// TODO(you): World state replication lab session
-				
-				
+				clientProxy.secondsSinceLastReplicationPacket += Time.deltaTime;
+				if (clientProxy.secondsSinceLastReplicationPacket >= REPLICATION_INTERVAL_SECONDS)
+				{
+					clientProxy.secondsSinceLastReplicationPacket = 0.0f;
+
+					OutputMemoryStream replicationPacket;
+					clientProxy.replicationManagerServer.write(replicationPacket);
+					sendPacket(replicationPacket, clientProxy.address);
+				}
+
 				// TODO(you): Reliability on top of UDP lab session
 			}
 		}
