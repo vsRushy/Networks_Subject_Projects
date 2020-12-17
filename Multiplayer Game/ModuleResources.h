@@ -25,6 +25,10 @@ public:
 
 	bool finishedLoading = false;
 
+	// TODO (custom): Replication
+public:
+	Texture* GetTexture(const std::string& name) const;
+
 private:
 
 	bool init() override;

@@ -42,6 +42,21 @@ bool ModuleResources::init()
 	return true;
 }
 
+Texture* ModuleResources::GetTexture(const std::string& name) const
+{
+	if (name.compare("background.jpg") == 0) return background;
+	else if (name.compare("space_background.jpg") == 0) return space;
+	else if (name.compare("asteroid1.png") == 0) return asteroid1;
+	else if (name.compare("asteroid2.png") == 0) return asteroid2;
+	else if (name.compare("spacecraft1.png") == 0) return spacecraft1;
+	else if (name.compare("spacecraft2.png") == 0) return spacecraft2;
+	else if (name.compare("spacecraft3.png") == 0) return spacecraft3;
+	else if (name.compare("laser.png") == 0) return laser;
+	else if (name.compare("explosion1.png") == 0) return explosion1;
+
+	return nullptr;
+}
+
 #if defined(USE_TASK_MANAGER)
 
 void ModuleResources::loadTextureAsync(const char * filename, Texture **texturePtrAddress)

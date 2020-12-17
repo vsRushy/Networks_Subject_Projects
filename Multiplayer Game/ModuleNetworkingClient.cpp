@@ -51,9 +51,6 @@ void ModuleNetworkingClient::onStart()
 
 	secondsSinceLastHello = 9999.0f;
 	secondsSinceLastInputDelivery = 0.0f;
-
-	secondsSinceLastReceivedPacket = 0.0f;
-	secondsSinceLastPing = 0.0f;
 }
 
 void ModuleNetworkingClient::onGui()
@@ -106,7 +103,6 @@ void ModuleNetworkingClient::onGui()
 void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, const sockaddr_in &fromAddress)
 {
 	// TODO(you): UDP virtual connection lab session
-	secondsSinceLastReceivedPacket = 0.0f;
 
 	uint32 protoId;
 	packet >> protoId;
@@ -133,35 +129,65 @@ void ModuleNetworkingClient::onPacketReceived(const InputMemoryStream &packet, c
 	}
 	else if (state == ClientState::Connected)
 	{
-		// TODO(you): World state replication lab session
-		//replicationManagerClient.read(packet);
-
-		// TODO(you): Reliability on top of UDP lab session
 		switch (message)
 		{
+			// TODO(you): Reliability on top of UDP lab session
 		case ServerMessage::LastInput:
 		{
-			uint32 lastProcessedInput = 0;
-			packet >> lastProcessedInput;
-			inputDataFront = lastProcessedInput;
+			uint32 packetSequenceNumber = UINT32_MAX;
+		    packet >> packetSequenceNumber;
+
+			if (deliveryManager.processSequenceNumber(packetSequenceNumber) == false)
+				break;
+
+			inputDataFront = packetSequenceNumber;
+
+			break;
+		}
+		case ServerMessage::Replication:
+		{
+			// TODO(you): World state replication lab session
+			replicationManagerClient.read(packet);
+
 			break;
 		}
 		default:
 			break;
 		}
 	}
+
+	
 }
 
 void ModuleNetworkingClient::onUpdate()
 {
 	if (state == ClientState::Stopped) return;
 
-	// TODO(you): UDP virtual connection lab session
-	secondsSinceLastReceivedPacket += Time.deltaTime;
-	if(secondsSinceLastReceivedPacket >= DISCONNECT_TIMEOUT_SECONDS)
-	{
+
+	/* " Disconnect the client if the time since the last received packet is greater than DISCONNECT_
+	TIMEOUT_SECONDS" */
+
+	if (secondsSinceLastInputDelivery > DISCONNECT_TIMEOUT_SECONDS)
 		disconnect();
+
+	/* Send a �Ping� packet to the server every PING_INTERVAL_SECONDS */
+	static float ping_interval_counter = 0.f;
+	if ((ping_interval_counter += Time.deltaTime) >= PING_INTERVAL_SECONDS)
+	{
+		ping_interval_counter = 0.f;
+
+		std::string message = "Ping";
+		OutputMemoryStream pingPacket;
+		pingPacket << PROTOCOL_ID;
+		pingPacket << ServerMessage::Ping;
+		pingPacket << message;
+		sendPacket(pingPacket, serverAddress);
 	}
+	
+
+
+	// TODO(you): UDP virtual connection lab session
+
 
 	if (state == ClientState::Connecting)
 	{
@@ -183,15 +209,6 @@ void ModuleNetworkingClient::onUpdate()
 	else if (state == ClientState::Connected)
 	{
 		// TODO(you): UDP virtual connection lab session
-		secondsSinceLastPing += Time.deltaTime;
-		if (secondsSinceLastPing >= PING_INTERVAL_SECONDS)
-		{
-			OutputMemoryStream packet_o;
-			packet_o << PROTOCOL_ID << ServerMessage::Ping;
-			sendPacket(packet_o, serverAddress);
-
-			secondsSinceLastPing = 0.0f;
-		}
 
 		// Process more inputs if there's space
 		if (inputDataBack - inputDataFront < ArrayCount(inputData))
@@ -216,8 +233,6 @@ void ModuleNetworkingClient::onUpdate()
 			packet << PROTOCOL_ID;
 			packet << ClientMessage::Input;
 
-			// TODO(you): Reliability on top of UDP lab session
-
 			for (uint32 i = inputDataFront; i < inputDataBack; ++i)
 			{
 				InputPacketData &inputPacketData = inputData[i % ArrayCount(inputData)];
@@ -227,9 +242,12 @@ void ModuleNetworkingClient::onUpdate()
 				packet << inputPacketData.buttonBits;
 			}
 
-			// Clear the queue
-			inputDataFront = inputDataBack; //TODO(us) delete this (reliability pdf)
+			// TODO(you): Reliability on top of UDP lab session
+		  //  deliveryManager.writeSequenceNumbersPendingAck(packet);
 
+			// Clear the queue --> Not anymore! "By deleting this, we allow to send repeated packets until receiving the last input p"
+		    // inputDataFront = inputDataBack;  
+		
 			sendPacket(packet, serverAddress);
 		}
 
