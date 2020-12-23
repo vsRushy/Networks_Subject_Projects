@@ -34,7 +34,7 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 				std::string texture_name;
 				packet >> texture_name;
 				gameObject->sprite->texture = App->modResources->GetTexture(texture_name);
-				//packet >> sprite->order;
+				packet >> gameObject->sprite->order;
 			}
 
 			bool has_collider = false;
