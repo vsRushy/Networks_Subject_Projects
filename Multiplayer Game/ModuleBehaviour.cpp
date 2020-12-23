@@ -79,12 +79,33 @@ Laser *ModuleBehaviour::addLaser(GameObject *parentGameObject)
 
 AsteroidWeak* ModuleBehaviour::addAsteroidWeak(GameObject* parentGameObject)
 {
+	for (AsteroidWeak& behaviour : asteroids_weak)
+	{
+		if (behaviour.gameObject == nullptr)
+		{
+			behaviour = {};
+			behaviour.gameObject = parentGameObject;
+			parentGameObject->behaviour = &behaviour;
+			return &behaviour;
+		}
+	}
+
+	ASSERT(false);
 	return nullptr;
 }
 
 AsteroidStrong* ModuleBehaviour::addAsteroidStrong(GameObject* parentGameObject)
 {
-	return nullptr;
+	for (AsteroidStrong& behaviour : asteroids_strong)
+	{
+		if (behaviour.gameObject == nullptr)
+		{
+			behaviour = {};
+			behaviour.gameObject = parentGameObject;
+			parentGameObject->behaviour = &behaviour;
+			return &behaviour;
+		}
+	}
 }
 
 void ModuleBehaviour::handleBehaviourLifeCycle(Behaviour *behaviour)
