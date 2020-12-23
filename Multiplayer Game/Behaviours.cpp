@@ -33,8 +33,6 @@ void Laser::update()
 
 
 
-
-
 void Spaceship::start()
 {
 	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
@@ -164,4 +162,68 @@ void Spaceship::write(OutputMemoryStream & packet)
 void Spaceship::read(const InputMemoryStream & packet)
 {
 	packet >> hitPoints;
+}
+
+
+
+void AsteroidStrong::start()
+{
+
+}
+
+void AsteroidStrong::update()
+{
+
+}
+
+void AsteroidStrong::destroy()
+{
+
+}
+
+void AsteroidStrong::onCollisionTriggered(Collider& c1, Collider& c2)
+{
+
+}
+
+void AsteroidStrong::write(OutputMemoryStream& packet)
+{
+
+}
+
+void AsteroidStrong::read(const InputMemoryStream& packet)
+{
+
+}
+
+
+
+void AsteroidWeak::start()
+{
+
+}
+
+void AsteroidWeak::update()
+{
+
+}
+
+void AsteroidWeak::destroy()
+{
+
+}
+
+void AsteroidWeak::onCollisionTriggered(Collider& c1, Collider& c2)
+{
+
+}
+
+void AsteroidWeak::write(OutputMemoryStream& packet)
+{
+
+}
+
+void AsteroidWeak::read(const InputMemoryStream& packet)
+{
+
 }
