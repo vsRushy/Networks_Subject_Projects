@@ -32,6 +32,8 @@ enum class BehaviourType : uint8
 	None,
 	Spaceship,
 	Laser,
+	AsteroidWeak,
+	AsteroidStrong,
 };
 
 
@@ -69,4 +71,48 @@ struct Spaceship : public Behaviour
 	void write(OutputMemoryStream &packet) override;
 
 	void read(const InputMemoryStream &packet) override;
+};
+
+struct AsteroidWeak : public Behaviour
+{
+	static const uint8 MAX_HIT_POINTS = 1;
+	uint8 hitPoints = MAX_HIT_POINTS;
+
+	float secondsSinceCreation = 0.0f;
+
+	BehaviourType type() const override { return BehaviourType::AsteroidWeak; }
+
+	void start() override;
+
+	void update() override;
+
+	void destroy() override;
+
+	void onCollisionTriggered(Collider& c1, Collider& c2) override;
+
+	void write(OutputMemoryStream& packet) override;
+
+	void read(const InputMemoryStream& packet) override;
+};
+
+struct AsteroidStrong : public Behaviour
+{
+	static const uint8 MAX_HIT_POINTS = 2;
+	uint8 hitPoints = MAX_HIT_POINTS;
+
+	float secondsSinceCreation = 0.0f;
+
+	BehaviourType type() const override { return BehaviourType::AsteroidStrong; }
+
+	void start() override;
+
+	void update() override;
+
+	void destroy() override;
+
+	void onCollisionTriggered(Collider& c1, Collider& c2) override;
+
+	void write(OutputMemoryStream& packet) override;
+
+	void read(const InputMemoryStream& packet) override;
 };

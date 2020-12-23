@@ -13,6 +13,16 @@ bool ModuleBehaviour::update()
 		handleBehaviourLifeCycle(&behaviour);
 	}
 
+	for (AsteroidWeak& behaviour : asteroids_weak)
+	{
+		handleBehaviourLifeCycle(&behaviour);
+	}
+
+	for (AsteroidStrong& behaviour : asteroids_strong)
+	{
+		handleBehaviourLifeCycle(&behaviour);
+	}
+
 	return true;
 }
 
@@ -24,6 +34,10 @@ Behaviour *ModuleBehaviour::addBehaviour(BehaviourType behaviourType, GameObject
 		return addSpaceship(parentGameObject);
 	case BehaviourType::Laser:
 		return addLaser(parentGameObject);
+	case BehaviourType::AsteroidWeak:
+		return addAsteroidWeak(parentGameObject);
+	case BehaviourType::AsteroidStrong:
+		return addAsteroidStrong(parentGameObject);
 	default:
 		return nullptr;
 	}
@@ -60,6 +74,16 @@ Laser *ModuleBehaviour::addLaser(GameObject *parentGameObject)
 	}
 
 	ASSERT(false);
+	return nullptr;
+}
+
+AsteroidWeak* ModuleBehaviour::addAsteroidWeak(GameObject* parentGameObject)
+{
+	return nullptr;
+}
+
+AsteroidStrong* ModuleBehaviour::addAsteroidStrong(GameObject* parentGameObject)
+{
 	return nullptr;
 }
 

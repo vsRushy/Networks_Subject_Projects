@@ -45,7 +45,17 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 			if (gameObject->sprite != nullptr)
 			{
 				packet << true << std::string(gameObject->sprite->texture->filename);
-				//packet << sprite->order;
+				packet << gameObject->sprite->order;
+			}
+			else
+			{
+				packet << false;
+			}
+
+			if (gameObject->animation != nullptr && gameObject->animation->clip != nullptr)
+			{
+				packet << true;
+				packet << gameObject->animation->animation_type;
 			}
 			else
 			{

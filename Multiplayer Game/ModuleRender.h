@@ -29,10 +29,17 @@ struct AnimationClip
 
 struct Animation
 {
+	enum AnimationType
+	{
+		None = -1,
+		Explosion,
+	};
+
 	GameObject *gameObject = nullptr;
 	AnimationClip *clip = nullptr;
 	float elapsedTime = 0.0f;
 	uint8 currentFrame = 0;
+	AnimationType animation_type = AnimationType::None; // Like this we can pass the type and add the animation to the clients.
 
 	void update(float deltaTime)
 	{
