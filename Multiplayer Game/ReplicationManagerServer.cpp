@@ -52,6 +52,16 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 				packet << false;
 			}
 
+			if (gameObject->animation != nullptr && gameObject->animation->clip != nullptr)
+			{
+				packet << true;
+				packet << gameObject->animation->animation_type;
+			}
+			else
+			{
+				packet << false;
+			}
+
 			if (gameObject->collider != nullptr)
 			{
 				packet << true << gameObject->collider->type << gameObject->collider->isTrigger;

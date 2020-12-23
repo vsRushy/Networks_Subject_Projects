@@ -37,6 +37,33 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 				packet >> gameObject->sprite->order;
 			}
 
+			bool has_animation = false;
+			packet >> has_animation;
+			if (has_animation)
+			{
+				Animation::AnimationType animation_type = Animation::AnimationType::None;
+				packet >> animation_type;
+
+				switch (animation_type)
+				{
+				case Animation::AnimationType::Explosion:
+				{
+					gameObject->animation = App->modRender->addAnimation(gameObject);
+					// TODO: Change addAnimationMethod (refactor)
+					if (gameObject->animation != nullptr)
+					{
+						gameObject->animation->clip = App->modResources->explosionClip;
+					}
+					
+					break;
+				}
+				default:
+				{
+					break;
+				}
+				}
+			}
+
 			bool has_collider = false;
 			packet >> has_collider;
 			if (has_collider)
