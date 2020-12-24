@@ -133,7 +133,7 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 					packet >> gameObject->angle;
 				}
 				
-				packet >> gameObject->tag >> gameObject->networkInterpolationEnabled;
+				packet >> gameObject->tag;
 
 				bool has_behaviour = false;
 				packet >> has_behaviour;
