@@ -26,6 +26,13 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 				gameObject->angle >> gameObject->tag >>
 				gameObject->networkInterpolationEnabled;
 
+			// Setup interpolation
+			gameObject->initial_position = gameObject->position;
+			gameObject->initial_angle = gameObject->angle;
+
+			gameObject->final_position = gameObject->position;
+			gameObject->final_angle = gameObject->angle;
+
 			bool has_sprite = false;
 			packet >> has_sprite;
 			if (has_sprite)
@@ -93,10 +100,40 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 
 			if (gameObject != nullptr)
 			{
-				packet >> gameObject->position.x >> gameObject->position.y >>
-					gameObject->size.x >> gameObject->size.y >>
-					gameObject->angle >> gameObject->tag >>
-					gameObject->networkInterpolationEnabled;
+				if (gameObject->networkInterpolationEnabled)
+				{
+					// Reset secondsElapsed
+					gameObject->secondsElapsed = 0.0f;
+
+					// Reset interpolation position
+					gameObject->initial_position = gameObject->position;
+
+					// Read final position from interpolation
+					//packet >> gameObject->final_position.x >> gameObject->final_position.y;
+					packet >> gameObject->position.x >> gameObject->position.y; // needs fix
+				}
+				else
+				{
+					packet >> gameObject->position.x >> gameObject->position.y;
+				}
+
+				packet >> gameObject->size.x >> gameObject->size.y;
+				
+				if (gameObject->networkInterpolationEnabled)
+				{
+					// Reset interpolation angle
+					gameObject->initial_angle = gameObject->angle;
+
+					// Read final angle from interpolation
+					//packet >> gameObject->final_angle;
+					packet >> gameObject->angle; // needs fix
+				}
+				else
+				{
+					packet >> gameObject->angle;
+				}
+				
+				packet >> gameObject->tag >> gameObject->networkInterpolationEnabled;
 
 				bool has_behaviour = false;
 				packet >> has_behaviour;
