@@ -165,65 +165,37 @@ void Spaceship::read(const InputMemoryStream & packet)
 }
 
 
-
-void AsteroidStrong::start()
+void Asteroid::start()
 {
 
 }
 
-void AsteroidStrong::update()
+void Asteroid::update()
+{
+	gameObject->position += speed * Time.deltaTime;
+
+	if (isServer)
+	{
+		NetworkUpdate(gameObject);
+	}
+}
+
+void Asteroid::destroy()
 {
 
 }
 
-void AsteroidStrong::destroy()
+void Asteroid::onCollisionTriggered(Collider& c1, Collider& c2)
 {
 
 }
 
-void AsteroidStrong::onCollisionTriggered(Collider& c1, Collider& c2)
+void Asteroid::write(OutputMemoryStream& packet)
 {
 
 }
 
-void AsteroidStrong::write(OutputMemoryStream& packet)
-{
-
-}
-
-void AsteroidStrong::read(const InputMemoryStream& packet)
-{
-
-}
-
-
-
-void AsteroidWeak::start()
-{
-
-}
-
-void AsteroidWeak::update()
-{
-
-}
-
-void AsteroidWeak::destroy()
-{
-
-}
-
-void AsteroidWeak::onCollisionTriggered(Collider& c1, Collider& c2)
-{
-
-}
-
-void AsteroidWeak::write(OutputMemoryStream& packet)
-{
-
-}
-
-void AsteroidWeak::read(const InputMemoryStream& packet)
+void Asteroid::read(const InputMemoryStream& packet)
 {
 
 }

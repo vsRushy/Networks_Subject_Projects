@@ -1,4 +1,6 @@
 #include "Networks.h"
+#include "ModuleGameObject.h"
+
 
 bool ModuleGameObject::init()
 {
@@ -44,8 +46,11 @@ bool ModuleGameObject::update()
 		}
 	}
 
+
 	return true;
 }
+
+
 
 bool ModuleGameObject::postUpdate()
 {
@@ -121,3 +126,4 @@ void Destroy(GameObject * gameObject, float delaySeconds)
 {
 	ModuleGameObject::Destroy(gameObject, delaySeconds);
 }
+

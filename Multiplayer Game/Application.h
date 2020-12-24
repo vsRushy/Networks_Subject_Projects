@@ -71,6 +71,9 @@ private:
 
 	// Exit flag
 	bool exitFlag = false;
+
+public: 
+	bool isServer = false;
 };
 
 extern Application* App;

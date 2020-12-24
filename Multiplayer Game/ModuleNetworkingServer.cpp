@@ -19,6 +19,9 @@ void ModuleNetworkingServer::setListenPort(int port)
 
 void ModuleNetworkingServer::onStart()
 {
+	// Testing
+	App->isServer = true;
+
 	if (!createSocket()) return;
 
 	// Reuse address
@@ -276,6 +279,9 @@ void ModuleNetworkingServer::onUpdate()
 			}
 		}
 	}
+
+	// Server Gameplay logic
+	App->modBehaviour->ServerUpdate();
 }
 
 void ModuleNetworkingServer::onConnectionReset(const sockaddr_in & fromAddress)
