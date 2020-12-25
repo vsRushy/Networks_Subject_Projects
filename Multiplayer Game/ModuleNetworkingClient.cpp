@@ -177,7 +177,7 @@ void ModuleNetworkingClient::onUpdate()
 
 		std::string message = "Ping";
 		OutputMemoryStream pingPacket;
-		pingPacket << PROTOCOL_ID << pingPacket << ServerMessage::Ping << message;
+		pingPacket << PROTOCOL_ID << ServerMessage::Ping << message;
 		sendPacket(pingPacket, serverAddress);
 	}
 	
