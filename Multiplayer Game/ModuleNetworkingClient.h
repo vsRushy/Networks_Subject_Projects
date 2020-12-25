@@ -61,7 +61,6 @@ private:
 	uint32 playerId = 0;
 	uint32 networkId = 0;
 
-
 	// Connecting stage
 
 	float secondsSinceLastHello = 0.0f;

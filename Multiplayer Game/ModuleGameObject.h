@@ -4,6 +4,15 @@ struct GameObject
 {
 	uint32 id;
 
+	// TODO (custom) (interpolation): Interpolation component
+	vec2 initial_position = vec2{ 0.0f, 0.0f };
+	float initial_angle = 0.0f;
+
+	vec2 final_position = vec2{ 0.0f, 0.0f };
+	float final_angle = 0.0f;
+
+	float secondsElapsed = 0.0f;
+
 	// Transform component
 	vec2 position = vec2{ 0.0f, 0.0f };
 	vec2 size = vec2{ 0.0f, 0.0f }; // NOTE(jesus): If equals 0, it takes the size of the texture
@@ -65,8 +74,6 @@ public:
 	static void Destroy(GameObject * gameObject);
 
 	static void Destroy(GameObject * gameObject, float delaySeconds);
-
-
 
 	GameObject gameObjects[MAX_GAME_OBJECTS] = {};
 

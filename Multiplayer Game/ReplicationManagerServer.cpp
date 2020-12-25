@@ -9,8 +9,7 @@ void ReplicationManagerServer::create(const uint32& networkId)
 
 void ReplicationManagerServer::update(const uint32& networkId)
 {
-	if (replicationCommands[networkId].action != ReplicationAction::Create || replicationCommands[networkId].action != ReplicationAction::Destroy)
-		replicationCommands[networkId].action = ReplicationAction::Update;
+	replicationCommands[networkId].action = ReplicationAction::Update;
 }
 
 void ReplicationManagerServer::destroy(const uint32& networkId)
@@ -87,8 +86,7 @@ void ReplicationManagerServer::write(OutputMemoryStream& packet)
 		{
 			packet << gameObject->position.x << gameObject->position.y <<
 				gameObject->size.x << gameObject->size.y <<
-				gameObject->angle << gameObject->tag <<
-				gameObject->networkInterpolationEnabled;
+				gameObject->angle << gameObject->tag;
 
 			if (gameObject->behaviour != nullptr)
 			{
