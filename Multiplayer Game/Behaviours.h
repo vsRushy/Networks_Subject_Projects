@@ -74,11 +74,11 @@ struct Spaceship : public Behaviour
 
 struct Asteroid : public Behaviour
 {
-	static const uint8 MAX_HIT_POINTS = 1;
-	uint8 hitPoints = MAX_HIT_POINTS;
+	static const uint8 MAX_HIT_POINTS = 5;
+	uint8 hitPoints = 1;
 
 	float secondsSinceCreation = 0.0f;
-	vec2 speed = { 0,5 };
+	vec2 speed = { 0,30 };
 
 	BehaviourType type() const override { return BehaviourType::Asteroid; }
 

@@ -84,13 +84,18 @@ void ModuleBehaviour::SpawnAsteroid()
 	}
 
 	// Create collider
-	gameObject->collider = App->modCollision->addCollider(ColliderType::Player, gameObject);
+	gameObject->collider = App->modCollision->addCollider(ColliderType::Asteroid, gameObject);
 	gameObject->collider->isTrigger = true; // NOTE(jesus): This object will receive onCollisionTriggered events
 
 	// Create behaviour
-	Behaviour* asteroidBehaviour = App->modBehaviour->addBehaviour(BehaviourType::Asteroid, gameObject);
+	Asteroid* asteroidBehaviour = (Asteroid*)App->modBehaviour->addBehaviour(BehaviourType::Asteroid, gameObject);
 	gameObject->behaviour = asteroidBehaviour;
 	gameObject->behaviour->isServer = true;
+
+	// Damage according to type
+	if (weak == false)
+		asteroidBehaviour->hitPoints = asteroidBehaviour->MAX_HIT_POINTS;
+
 
 }
 

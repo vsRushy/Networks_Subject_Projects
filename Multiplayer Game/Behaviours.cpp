@@ -106,7 +106,7 @@ void Spaceship::destroy()
 
 void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 {
-	if (c2.type == ColliderType::Laser && c2.gameObject->tag != gameObject->tag)
+	if (((c2.type == ColliderType::Laser) || c2.type == ColliderType::Asteroid) && c2.gameObject->tag != gameObject->tag)
 	{
 		if (isServer)
 		{
@@ -114,7 +114,18 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		
 			if (hitPoints > 0)
 			{
-				hitPoints--;
+				int signedHitpoints = hitPoints;
+
+				if (c2.type == ColliderType::Laser)
+					signedHitpoints--;
+				else
+				{
+					uint8 damage = dynamic_cast<Asteroid*>(c2.gameObject->behaviour)->hitPoints;
+					signedHitpoints -= damage;
+				}
+
+				hitPoints = (signedHitpoints >= 0) ? signedHitpoints : 0;
+			
 				NetworkUpdate(gameObject);
 			}
 
