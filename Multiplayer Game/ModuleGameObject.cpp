@@ -45,8 +45,11 @@ bool ModuleGameObject::update()
 		}
 	}
 
+
 	return true;
 }
+
+
 
 bool ModuleGameObject::postUpdate()
 {

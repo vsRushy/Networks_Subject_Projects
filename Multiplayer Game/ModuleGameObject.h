@@ -89,6 +89,7 @@ public:
 
 	GameObject gameObjects[MAX_GAME_OBJECTS] = {};
 
+
 private:
 
 	struct DelayedDestroyEntry

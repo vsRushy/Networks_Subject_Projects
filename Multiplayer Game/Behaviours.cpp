@@ -146,7 +146,7 @@ void Spaceship::onInput(const InputController &input)
 				GameObject* laser1 = NetworkInstantiate();
 
 				laser1->position = gameObject->position;
-				laser1->angle = gameObject->angle;
+				laser1->angle = gameObject->angle + 45.0f;
 				laser1->size = { 20, 60 };
 				laser1->sprite = App->modRender->addSprite(laser1);
 				laser1->sprite->order = 3;
@@ -157,7 +157,7 @@ void Spaceship::onInput(const InputController &input)
 
 				GameObject* laser2 = NetworkInstantiate();
 				laser2->position = gameObject->position;
-				laser2->angle = gameObject->angle;
+				laser2->angle = gameObject->angle + 135.0f;
 				laser2->size = { 20, 60 };
 				laser2->sprite = App->modRender->addSprite(laser2);
 				laser2->sprite->order = 3;
@@ -168,7 +168,7 @@ void Spaceship::onInput(const InputController &input)
 
 				GameObject* laser3 = NetworkInstantiate();
 				laser3->position = gameObject->position;
-				laser3->angle = gameObject->angle;
+				laser3->angle = gameObject->angle + 225.0f;
 				laser3->size = { 20, 60 };
 				laser3->sprite = App->modRender->addSprite(laser3);
 				laser3->sprite->order = 3;
@@ -179,7 +179,7 @@ void Spaceship::onInput(const InputController &input)
 
 				GameObject* laser4 = NetworkInstantiate();
 				laser4->position = gameObject->position;
-				laser4->angle = gameObject->angle;
+				laser4->angle = gameObject->angle + 315.0f;
 				laser4->size = { 20, 60 };
 				laser4->sprite = App->modRender->addSprite(laser4);
 				laser4->sprite->order = 3;
@@ -226,7 +226,7 @@ void Spaceship::destroy()
 
 void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 {
-	if (c2.type == ColliderType::Laser && c2.gameObject->tag != gameObject->tag)
+	if (((c2.type == ColliderType::Laser) || c2.type == ColliderType::Asteroid) && c2.gameObject->tag != gameObject->tag)
 	{
 		if (isServer)
 		{
@@ -234,7 +234,18 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 		
 			if (hitPoints > 0)
 			{
-				hitPoints--;
+				int signedHitpoints = hitPoints;
+
+				if (c2.type == ColliderType::Laser)
+					signedHitpoints--;
+				else
+				{
+					uint8 damage = dynamic_cast<Asteroid*>(c2.gameObject->behaviour)->hitPoints;
+					signedHitpoints -= damage;
+				}
+
+				hitPoints = (signedHitpoints >= 0) ? signedHitpoints : 0;
+			
 				NetworkUpdate(gameObject);
 			}
 
@@ -285,65 +296,37 @@ void Spaceship::read(const InputMemoryStream & packet)
 }
 
 
-
-void AsteroidStrong::start()
+void Asteroid::start()
 {
 
 }
 
-void AsteroidStrong::update()
+void Asteroid::update()
+{
+	gameObject->position += speed * Time.deltaTime;
+
+	if (isServer)
+	{
+		NetworkUpdate(gameObject);
+	}
+}
+
+void Asteroid::destroy()
 {
 
 }
 
-void AsteroidStrong::destroy()
+void Asteroid::onCollisionTriggered(Collider& c1, Collider& c2)
 {
 
 }
 
-void AsteroidStrong::onCollisionTriggered(Collider& c1, Collider& c2)
+void Asteroid::write(OutputMemoryStream& packet)
 {
 
 }
 
-void AsteroidStrong::write(OutputMemoryStream& packet)
-{
-
-}
-
-void AsteroidStrong::read(const InputMemoryStream& packet)
-{
-
-}
-
-
-
-void AsteroidWeak::start()
-{
-
-}
-
-void AsteroidWeak::update()
-{
-
-}
-
-void AsteroidWeak::destroy()
-{
-
-}
-
-void AsteroidWeak::onCollisionTriggered(Collider& c1, Collider& c2)
-{
-
-}
-
-void AsteroidWeak::write(OutputMemoryStream& packet)
-{
-
-}
-
-void AsteroidWeak::read(const InputMemoryStream& packet)
+void Asteroid::read(const InputMemoryStream& packet)
 {
 
 }
