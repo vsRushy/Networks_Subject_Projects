@@ -5,13 +5,23 @@ struct GameObject
 	uint32 id;
 
 	// TODO (custom) (interpolation): Interpolation component
-	vec2 initial_position = vec2{ 0.0f, 0.0f };
-	float initial_angle = 0.0f;
 
-	vec2 final_position = vec2{ 0.0f, 0.0f };
-	float final_angle = 0.0f;
+	struct Interpolator
+	{
+		vec2 initial_position = vec2{ 0.0f, 0.0f };
+		float initial_angle = 0.0f;
 
-	float secondsElapsed = 0.0f;
+		vec2 final_position = vec2{ 0.0f, 0.0f };
+		float final_angle = 0.0f;
+
+		float secondsElapsed = 0.0f;
+		float previousDt = 0.0f;
+
+		void PredictPosition(float newDt, GameObject* go);
+		void PredictAngle(float newDt, GameObject* go);
+
+	} interpolator;
+
 
 	// Transform component
 	vec2 position = vec2{ 0.0f, 0.0f };
@@ -52,6 +62,8 @@ private:
 	void * operator new(size_t size) = delete;
 	void operator delete (void *obj) = delete;
 };
+
+
 
 class ModuleGameObject : public Module
 {

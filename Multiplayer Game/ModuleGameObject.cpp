@@ -122,3 +122,30 @@ void Destroy(GameObject * gameObject, float delaySeconds)
 {
 	ModuleGameObject::Destroy(gameObject, delaySeconds);
 }
+
+void GameObject::Interpolator::PredictPosition(float newDt, GameObject* go) // need to pass go to access position
+{ 
+	if (previousDt == 0.f)
+	{
+		previousDt = newDt;
+		return;
+	}
+		
+	vec2 previousDeltaPos = go->position - initial_position;
+	if ((previousDeltaPos.x == 0) && (previousDeltaPos.x == 0))
+		return;
+
+	// for testing purposes, delete this
+	if ((go->behaviour == NULL) || (go->behaviour->type() != BehaviourType::Spaceship))
+		return;
+
+	vec2 deltaPos = (previousDeltaPos * previousDt) / newDt;
+	final_position = go->position + deltaPos;
+	go->position = final_position;
+	initial_position = go->position;
+	previousDt = newDt;
+}
+
+void GameObject::Interpolator::PredictAngle(float newDt, GameObject* go)
+{
+}

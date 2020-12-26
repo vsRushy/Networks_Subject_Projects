@@ -36,7 +36,7 @@ private:
 
 	void onDisconnect() override;
 
-
+	void InterpolateGameobjects();
 
 	//////////////////////////////////////////////////////////////////////
 	// Client state

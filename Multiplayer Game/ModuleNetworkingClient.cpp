@@ -205,6 +205,10 @@ void ModuleNetworkingClient::onUpdate()
 	}
 	else if (state == ClientState::Connected)
 	{
+		// interpolation (client side)
+		InterpolateGameobjects();
+
+
 		// TODO(you): UDP virtual connection lab session
 
 		// Process more inputs if there's space
@@ -283,4 +287,14 @@ void ModuleNetworkingClient::onDisconnect()
 	}
 
 	App->modRender->cameraPosition = {};
+}
+
+void ModuleNetworkingClient::InterpolateGameobjects()
+{
+	for(auto& go : App->modGameObject->gameObjects)
+		if (go.networkInterpolationEnabled)
+		{
+			go.interpolator.PredictPosition(Time.deltaTime, &go);
+			go.interpolator.PredictAngle(Time.deltaTime, &go);
+		}
 }
