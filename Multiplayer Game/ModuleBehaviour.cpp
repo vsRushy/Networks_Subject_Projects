@@ -63,19 +63,39 @@ void ModuleBehaviour::SpawnAsteroid()
 {
 	// Create a new game object with the player properties
 	GameObject* gameObject = NetworkInstantiate();
-	gameObject->position = 500.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f };
-	gameObject->size = { 100, 100 };
+	gameObject->position = vec2{ 500.f * (Random.next() - 0.5f), -500.0f};
 	gameObject->angle = 0;
 
-	// Create sprite
-	gameObject->sprite = App->modRender->addSprite(gameObject);
-	gameObject->sprite->order = 5;
-	
 	// Decide weak or strong
 	bool weak = false;
 	if (Random.next() >= 0.5f)
 		weak = true;
-	
+
+	// Create behaviour
+	Asteroid* asteroidBehaviour = (Asteroid*)App->modBehaviour->addBehaviour(BehaviourType::Asteroid, gameObject);
+
+	// Random size between a min and a max value
+	float randomUnit = Random.next();
+	float sideSize = map(randomUnit, 0.0f, 1.0f, (float)asteroidBehaviour->sizeRange.first, (float)asteroidBehaviour->sizeRange.second);
+	gameObject->size = { sideSize, sideSize };
+	gameObject->behaviour = asteroidBehaviour;
+	gameObject->behaviour->isServer = true;
+
+	// Damage according to size
+	asteroidBehaviour->hitPoints = (uint8)(int)map(randomUnit, 0.0f, 1.0f, (float)(int)asteroidBehaviour->hitPointRange.first, (float)(int)asteroidBehaviour->hitPointRange.second);
+
+	// Speed according to size (inverse)
+	float newSpeed = (uint8)(int)map(randomUnit, 0.0f, 1.0f, (float)(int)asteroidBehaviour->speedRange.second, (float)(int)asteroidBehaviour->speedRange.first);
+	asteroidBehaviour->speed = { 0.0f, newSpeed };
+
+	/*if (weak == false)
+		asteroidBehaviour->hitPoints = asteroidBehaviour->MAX_HIT_POINTS;*/
+
+	// Create sprite
+	gameObject->sprite = App->modRender->addSprite(gameObject);
+	gameObject->sprite->order = 5;
+
+
 	if (weak) {
 		gameObject->sprite->texture = App->modResources->asteroid1;
 	}
@@ -83,19 +103,10 @@ void ModuleBehaviour::SpawnAsteroid()
 		gameObject->sprite->texture = App->modResources->asteroid2;
 	}
 
+
 	// Create collider
 	gameObject->collider = App->modCollision->addCollider(ColliderType::Asteroid, gameObject);
 	gameObject->collider->isTrigger = true; // NOTE(jesus): This object will receive onCollisionTriggered events
-
-	// Create behaviour
-	Asteroid* asteroidBehaviour = (Asteroid*)App->modBehaviour->addBehaviour(BehaviourType::Asteroid, gameObject);
-	gameObject->behaviour = asteroidBehaviour;
-	gameObject->behaviour->isServer = true;
-
-	// Damage according to type
-	if (weak == false)
-		asteroidBehaviour->hitPoints = asteroidBehaviour->MAX_HIT_POINTS;
-
 
 }
 

@@ -74,11 +74,18 @@ struct Spaceship : public Behaviour
 
 struct Asteroid : public Behaviour
 {
-	static const uint8 MAX_HIT_POINTS = 5;
-	uint8 hitPoints = 1;
+	static const uint8 MIN_HIT_POINTS = 1;
+	static const uint8 MAX_HIT_POINTS = 5;  
+	uint8 hitPoints = MIN_HIT_POINTS;
+
+
+	vec2 speed = { 0,0 };
+
+	std::pair<int, int> sizeRange = std::make_pair(50, 300);
+	std::pair<int, int> hitPointRange = std::make_pair(1, 5);
+	std::pair<int, int> speedRange = std::make_pair(5, 80);
 
 	float secondsSinceCreation = 0.0f;
-	vec2 speed = { 0,30 };
 
 	BehaviourType type() const override { return BehaviourType::Asteroid; }
 

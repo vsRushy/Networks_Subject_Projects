@@ -29,7 +29,7 @@ private:
 	{
 		float currentTime = 0.f;
 		float nextSpawnTime = 0.f;
-		std::pair<float, float> spawnTimeRange = std::make_pair(1.5f, 3.0f);
+		std::pair<float, float> spawnTimeRange = std::make_pair(0.5f, 1.8f);
 		void Generate();
 	} asteroidData;
 
