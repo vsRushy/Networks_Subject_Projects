@@ -50,8 +50,18 @@ struct Laser : public Behaviour
 
 struct Spaceship : public Behaviour
 {
+	enum WEAPON
+	{
+		FRONT = 1,
+		AXIS,
+		DIAGONALS,
+	};
+
 	static const uint8 MAX_HIT_POINTS = 5;
 	uint8 hitPoints = MAX_HIT_POINTS;
+
+	int weapon = WEAPON::FRONT;
+	int num_weapons = 3;
 
 	GameObject *lifebar = nullptr;
 

@@ -71,20 +71,140 @@ void Spaceship::onInput(const InputController &input)
 	{
 		if (isServer)
 		{
-			GameObject *laser = NetworkInstantiate();
+			switch (weapon)
+			{
+			case WEAPON::FRONT:
+			{
+				GameObject* laser = NetworkInstantiate();
 
-			laser->position = gameObject->position;
-			laser->angle = gameObject->angle;
-			laser->size = { 20, 60 };
+				laser->position = gameObject->position;
+				laser->angle = gameObject->angle;
+				laser->size = { 20, 60 };
 
-			laser->sprite = App->modRender->addSprite(laser);
-			laser->sprite->order = 3;
-			laser->sprite->texture = App->modResources->laser;
+				laser->sprite = App->modRender->addSprite(laser);
+				laser->sprite->order = 3;
+				laser->sprite->texture = App->modResources->laser;
 
-			Laser *laserBehaviour = App->modBehaviour->addLaser(laser);
-			laserBehaviour->isServer = isServer;
+				Laser* laserBehaviour = App->modBehaviour->addLaser(laser);
+				laserBehaviour->isServer = isServer;
 
-			laser->tag = gameObject->tag;
+				laser->tag = gameObject->tag;
+
+				break;
+			}
+			case WEAPON::AXIS:
+			{
+				GameObject* laser1 = NetworkInstantiate();
+
+				laser1->position = gameObject->position;
+				laser1->angle = gameObject->angle;
+				laser1->size = { 20, 60 };
+				laser1->sprite = App->modRender->addSprite(laser1);
+				laser1->sprite->order = 3;
+				laser1->sprite->texture = App->modResources->laser;
+				Laser* laserBehaviour1 = App->modBehaviour->addLaser(laser1);
+				laserBehaviour1->isServer = isServer;
+				laser1->tag = gameObject->tag;
+
+				GameObject* laser2 = NetworkInstantiate();
+				laser2->position = gameObject->position;
+				laser2->angle = gameObject->angle + 90.0f;
+				laser2->size = { 20, 60 };
+				laser2->sprite = App->modRender->addSprite(laser2);
+				laser2->sprite->order = 3;
+				laser2->sprite->texture = App->modResources->laser;
+				Laser* laserBehaviour2 = App->modBehaviour->addLaser(laser2);
+				laserBehaviour2->isServer = isServer;
+				laser2->tag = gameObject->tag;
+
+				GameObject* laser3 = NetworkInstantiate();
+				laser3->position = gameObject->position;
+				laser3->angle = gameObject->angle + 180.0f;
+				laser3->size = { 20, 60 };
+				laser3->sprite = App->modRender->addSprite(laser3);
+				laser3->sprite->order = 3;
+				laser3->sprite->texture = App->modResources->laser;
+				Laser* laserBehaviour3 = App->modBehaviour->addLaser(laser3);
+				laserBehaviour3->isServer = isServer;
+				laser3->tag = gameObject->tag;
+
+				GameObject* laser4 = NetworkInstantiate();
+				laser4->position = gameObject->position;
+				laser4->angle = gameObject->angle + 270.0f;
+				laser4->size = { 20, 60 };
+				laser4->sprite = App->modRender->addSprite(laser4);
+				laser4->sprite->order = 3;
+				laser4->sprite->texture = App->modResources->laser;
+				Laser* laserBehaviour4 = App->modBehaviour->addLaser(laser4);
+				laserBehaviour4->isServer = isServer;
+				laser4->tag = gameObject->tag;
+
+				break;
+			}
+			case WEAPON::DIAGONALS:
+			{
+				GameObject* laser1 = NetworkInstantiate();
+
+				laser1->position = gameObject->position;
+				laser1->angle = gameObject->angle + 45.0f;
+				laser1->size = { 20, 60 };
+				laser1->sprite = App->modRender->addSprite(laser1);
+				laser1->sprite->order = 3;
+				laser1->sprite->texture = App->modResources->laser;
+				Laser* laserBehaviour1 = App->modBehaviour->addLaser(laser1);
+				laserBehaviour1->isServer = isServer;
+				laser1->tag = gameObject->tag;
+
+				GameObject* laser2 = NetworkInstantiate();
+				laser2->position = gameObject->position;
+				laser2->angle = gameObject->angle + 135.0f;
+				laser2->size = { 20, 60 };
+				laser2->sprite = App->modRender->addSprite(laser2);
+				laser2->sprite->order = 3;
+				laser2->sprite->texture = App->modResources->laser;
+				Laser* laserBehaviour2 = App->modBehaviour->addLaser(laser2);
+				laserBehaviour2->isServer = isServer;
+				laser2->tag = gameObject->tag;
+
+				GameObject* laser3 = NetworkInstantiate();
+				laser3->position = gameObject->position;
+				laser3->angle = gameObject->angle + 225.0f;
+				laser3->size = { 20, 60 };
+				laser3->sprite = App->modRender->addSprite(laser3);
+				laser3->sprite->order = 3;
+				laser3->sprite->texture = App->modResources->laser;
+				Laser* laserBehaviour3 = App->modBehaviour->addLaser(laser3);
+				laserBehaviour3->isServer = isServer;
+				laser3->tag = gameObject->tag;
+
+				GameObject* laser4 = NetworkInstantiate();
+				laser4->position = gameObject->position;
+				laser4->angle = gameObject->angle + 315.0f;
+				laser4->size = { 20, 60 };
+				laser4->sprite = App->modRender->addSprite(laser4);
+				laser4->sprite->order = 3;
+				laser4->sprite->texture = App->modResources->laser;
+				Laser* laserBehaviour4 = App->modBehaviour->addLaser(laser4);
+				laserBehaviour4->isServer = isServer;
+				laser4->tag = gameObject->tag;
+
+				break;
+			}
+			default:
+			{
+				break;
+			}
+			}
+		}
+	}
+
+	if (input.actionUp == ButtonState::Release)
+	{
+		weapon < num_weapons ? ++weapon : weapon = WEAPON::FRONT;
+
+		if (isServer)
+		{
+			NetworkUpdate(gameObject);
 		}
 	}
 }
