@@ -88,7 +88,6 @@ struct Asteroid : public Behaviour
 	static const uint8 MAX_HIT_POINTS = 5;  
 	uint8 hitPoints = MIN_HIT_POINTS;
 
-
 	vec2 speed = { 0,0 };
 
 	std::pair<int, int> sizeRange = std::make_pair(50, 300);
@@ -96,6 +95,8 @@ struct Asteroid : public Behaviour
 	std::pair<int, int> speedRange = std::make_pair(5, 80);
 
 	float secondsSinceCreation = 0.0f;
+
+	float destroySeconds = 20.0f;
 
 	BehaviourType type() const override { return BehaviourType::Asteroid; }
 

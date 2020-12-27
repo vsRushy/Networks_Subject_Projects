@@ -43,8 +43,8 @@ bool ModuleBehaviour::update()
 
 void ModuleBehaviour::ServerUpdate() // called from networking server update
 {
-	if (startGame == false)
-		return;
+	/*if (startGame == 0)
+		return;*/
 	AsteroidRain();
 }
 
@@ -63,7 +63,7 @@ void ModuleBehaviour::SpawnAsteroid()
 {
 	// Create a new game object with the player properties
 	GameObject* gameObject = NetworkInstantiate();
-	gameObject->position = vec2{ 500.f * (Random.next() - 0.5f), -500.0f};
+	gameObject->position = vec2{ 2000.f * (Random.next() - 0.5f), -500.0f};
 	gameObject->angle = 0;
 
 	// Decide weak or strong
@@ -73,13 +73,13 @@ void ModuleBehaviour::SpawnAsteroid()
 
 	// Create behaviour
 	Asteroid* asteroidBehaviour = (Asteroid*)App->modBehaviour->addBehaviour(BehaviourType::Asteroid, gameObject);
+	gameObject->behaviour = dynamic_cast<Behaviour*>(asteroidBehaviour);
+	gameObject->behaviour->isServer = true;
 
 	// Random size between a min and a max value
 	float randomUnit = Random.next();
 	float sideSize = map(randomUnit, 0.0f, 1.0f, (float)asteroidBehaviour->sizeRange.first, (float)asteroidBehaviour->sizeRange.second);
 	gameObject->size = { sideSize, sideSize };
-	gameObject->behaviour = asteroidBehaviour;
-	gameObject->behaviour->isServer = true;
 
 	// Damage according to size
 	asteroidBehaviour->hitPoints = (uint8)(int)map(randomUnit, 0.0f, 1.0f, (float)(int)asteroidBehaviour->hitPointRange.first, (float)(int)asteroidBehaviour->hitPointRange.second);
@@ -93,7 +93,7 @@ void ModuleBehaviour::SpawnAsteroid()
 
 	// Create sprite
 	gameObject->sprite = App->modRender->addSprite(gameObject);
-	gameObject->sprite->order = 5;
+	gameObject->sprite->order = 6;
 
 
 	if (weak) {
@@ -106,7 +106,6 @@ void ModuleBehaviour::SpawnAsteroid()
 
 	// Create collider
 	gameObject->collider = App->modCollision->addCollider(ColliderType::Asteroid, gameObject);
-	gameObject->collider->isTrigger = true; // NOTE(jesus): This object will receive onCollisionTriggered events
 
 }
 
@@ -129,7 +128,7 @@ Spaceship *ModuleBehaviour::addSpaceship(GameObject *parentGameObject)
 {
 
 	// for testing purposes
-	startGame = true;
+	startGame++;
 
 	for (Spaceship &behaviour : spaceships)
 	{

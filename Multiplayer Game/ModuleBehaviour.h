@@ -23,7 +23,7 @@ public:
 private:
 
 	// for test purpooses
-	bool startGame = false;
+	uint8 startGame = 0;
 
 	struct AsteroidRainData
 	{

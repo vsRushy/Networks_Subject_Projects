@@ -230,7 +230,7 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 	{
 		if (isServer)
 		{
-			NetworkDestroy(c2.gameObject); // Destroy the laser
+			NetworkDestroy(c2.gameObject); // Destroy the laser / asteroid
 		
 			if (hitPoints > 0)
 			{
@@ -298,7 +298,10 @@ void Spaceship::read(const InputMemoryStream & packet)
 
 void Asteroid::start()
 {
+	// Program destruction
+	NetworkDestroy(gameObject, destroySeconds);
 
+	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
 }
 
 void Asteroid::update()
