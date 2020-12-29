@@ -220,6 +220,23 @@ bool ModuleNetworking::gui()
 		}
 
 		ImGui::End();
+
+
+		// Stats -----------------------------
+		if (isServer())
+		{
+			if (ImGui::Begin("Stats"))
+			{
+				auto orderedSpaceships = App->modBehaviour->GetSpaceshipsByScore();
+
+				for (const auto& s : orderedSpaceships)
+				{
+					ImGui::Text("Name: %s | Gun: %d", s->gameObject->playerName.c_str(), s->weapon);
+				}
+			}
+
+			ImGui::End();
+		}
 	}
 
 	return true;
