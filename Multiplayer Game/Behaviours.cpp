@@ -32,7 +32,6 @@ void Laser::update()
 }
 
 
-
 void Spaceship::start()
 {
 	gameObject->tag = (uint32)(Random.next() * UINT_MAX);
@@ -85,7 +84,7 @@ void Spaceship::onInput(const InputController &input)
 				laser->sprite->order = 3;
 				laser->sprite->texture = App->modResources->laser;
 
-				Laser* laserBehaviour = App->modBehaviour->addLaser(laser);
+				Laser* laserBehaviour = App->modBehaviour->addLaser(laser, gameObject);
 				laserBehaviour->isServer = isServer;
 
 				laser->tag = gameObject->tag;
@@ -102,7 +101,7 @@ void Spaceship::onInput(const InputController &input)
 				laser1->sprite = App->modRender->addSprite(laser1);
 				laser1->sprite->order = 3;
 				laser1->sprite->texture = App->modResources->laser;
-				Laser* laserBehaviour1 = App->modBehaviour->addLaser(laser1);
+				Laser* laserBehaviour1 = App->modBehaviour->addLaser(laser1, gameObject);
 				laserBehaviour1->isServer = isServer;
 				laser1->tag = gameObject->tag;
 
@@ -113,7 +112,7 @@ void Spaceship::onInput(const InputController &input)
 				laser2->sprite = App->modRender->addSprite(laser2);
 				laser2->sprite->order = 3;
 				laser2->sprite->texture = App->modResources->laser;
-				Laser* laserBehaviour2 = App->modBehaviour->addLaser(laser2);
+				Laser* laserBehaviour2 = App->modBehaviour->addLaser(laser2, gameObject);
 				laserBehaviour2->isServer = isServer;
 				laser2->tag = gameObject->tag;
 
@@ -124,7 +123,7 @@ void Spaceship::onInput(const InputController &input)
 				laser3->sprite = App->modRender->addSprite(laser3);
 				laser3->sprite->order = 3;
 				laser3->sprite->texture = App->modResources->laser;
-				Laser* laserBehaviour3 = App->modBehaviour->addLaser(laser3);
+				Laser* laserBehaviour3 = App->modBehaviour->addLaser(laser3, gameObject);
 				laserBehaviour3->isServer = isServer;
 				laser3->tag = gameObject->tag;
 
@@ -135,7 +134,7 @@ void Spaceship::onInput(const InputController &input)
 				laser4->sprite = App->modRender->addSprite(laser4);
 				laser4->sprite->order = 3;
 				laser4->sprite->texture = App->modResources->laser;
-				Laser* laserBehaviour4 = App->modBehaviour->addLaser(laser4);
+				Laser* laserBehaviour4 = App->modBehaviour->addLaser(laser4, gameObject);
 				laserBehaviour4->isServer = isServer;
 				laser4->tag = gameObject->tag;
 
@@ -151,7 +150,7 @@ void Spaceship::onInput(const InputController &input)
 				laser1->sprite = App->modRender->addSprite(laser1);
 				laser1->sprite->order = 3;
 				laser1->sprite->texture = App->modResources->laser;
-				Laser* laserBehaviour1 = App->modBehaviour->addLaser(laser1);
+				Laser* laserBehaviour1 = App->modBehaviour->addLaser(laser1, gameObject);
 				laserBehaviour1->isServer = isServer;
 				laser1->tag = gameObject->tag;
 
@@ -162,7 +161,7 @@ void Spaceship::onInput(const InputController &input)
 				laser2->sprite = App->modRender->addSprite(laser2);
 				laser2->sprite->order = 3;
 				laser2->sprite->texture = App->modResources->laser;
-				Laser* laserBehaviour2 = App->modBehaviour->addLaser(laser2);
+				Laser* laserBehaviour2 = App->modBehaviour->addLaser(laser2, gameObject);
 				laserBehaviour2->isServer = isServer;
 				laser2->tag = gameObject->tag;
 
@@ -173,7 +172,7 @@ void Spaceship::onInput(const InputController &input)
 				laser3->sprite = App->modRender->addSprite(laser3);
 				laser3->sprite->order = 3;
 				laser3->sprite->texture = App->modResources->laser;
-				Laser* laserBehaviour3 = App->modBehaviour->addLaser(laser3);
+				Laser* laserBehaviour3 = App->modBehaviour->addLaser(laser3, gameObject);
 				laserBehaviour3->isServer = isServer;
 				laser3->tag = gameObject->tag;
 
@@ -184,7 +183,7 @@ void Spaceship::onInput(const InputController &input)
 				laser4->sprite = App->modRender->addSprite(laser4);
 				laser4->sprite->order = 3;
 				laser4->sprite->texture = App->modResources->laser;
-				Laser* laserBehaviour4 = App->modBehaviour->addLaser(laser4);
+				Laser* laserBehaviour4 = App->modBehaviour->addLaser(laser4, gameObject);
 				laserBehaviour4->isServer = isServer;
 				laser4->tag = gameObject->tag;
 
@@ -258,9 +257,14 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 				size = 250.0f + 100.0f * Random.next();
 				position = gameObject->position;
 
+				// If laser, score one point to the killer
+				if (c2.type == ColliderType::Laser)
+					ScoreDeath(c2.gameObject->behaviour->emitter); // laser's emitter aka spaceships' object
+
+				// Destroy
 				NetworkDestroy(gameObject);
 			}
-
+			
 			GameObject *explosion = NetworkInstantiate();
 			explosion->position = position;
 			explosion->size = vec2{ size, size };
@@ -288,11 +292,25 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 void Spaceship::write(OutputMemoryStream & packet)
 {
 	packet << hitPoints;
+	packet << myScore;
 }
 
 void Spaceship::read(const InputMemoryStream & packet)
 {
 	packet >> hitPoints;
+	packet >> myScore;
+}
+
+
+void Spaceship::ScoreDeath(GameObject* killer)
+{
+	Spaceship* behaviour = (Spaceship*)killer->behaviour;
+	behaviour->myScore++;
+
+	if (isServer)
+	{
+		NetworkUpdate(killer); // update killer since their score needs to be written
+	}
 }
 
 

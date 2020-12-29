@@ -206,6 +206,20 @@ bool ModuleNetworking::gui()
 		ImGui::PopItemWidth();
 
 		ImGui::End();
+
+
+
+		if (ImGui::Begin("Scoreboard"))
+		{
+			auto orderedSpaceships = App->modBehaviour->GetSpaceshipsByScore();
+
+			for (auto& s : orderedSpaceships)
+			{
+				ImGui::Text("%s: %d", s->gameObject->playerName.c_str(), s->myScore);
+			}
+		}
+
+		ImGui::End();
 	}
 
 	return true;

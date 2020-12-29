@@ -124,7 +124,7 @@ void ModuleNetworkingServer::onPacketReceived(const InputMemoryStream &packet, c
 					// Create new network object
 					vec2 initialPosition = 200.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f};
 					float initialAngle = 360.0f * Random.next();
-					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle);
+					proxy->gameObject = spawnPlayer(spaceshipType, initialPosition, initialAngle, proxy->name);
 				}
 				else
 				{
@@ -367,10 +367,11 @@ void ModuleNetworkingServer::destroyClientProxy(ClientProxy *clientProxy)
 // Spawning
 //////////////////////////////////////////////////////////////////////
 
-GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initialPosition, float initialAngle)
+GameObject * ModuleNetworkingServer::spawnPlayer(uint8 spaceshipType, vec2 initialPosition, float initialAngle, std::string name)
 {
 	// Create a new game object with the player properties
 	GameObject *gameObject = NetworkInstantiate();
+	gameObject->playerName = name;
 	gameObject->position = initialPosition;
 	gameObject->size = { 100, 100 };
 	gameObject->angle = initialAngle;

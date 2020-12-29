@@ -1,5 +1,6 @@
 #include "Networks.h"
 #include "ModuleBehaviour.h"
+#include "ModuleGameObject.h"
 
 static float map(float x, float in_min, float in_max, float out_min, float out_max)
 {
@@ -45,7 +46,7 @@ void ModuleBehaviour::ServerUpdate() // called from networking server update
 {
 	/*if (startGame == 0)
 		return;*/
-	AsteroidRain();
+	// AsteroidRain();
 }
 
 void ModuleBehaviour::AsteroidRain()
@@ -109,6 +110,21 @@ void ModuleBehaviour::SpawnAsteroid()
 
 }
 
+std::vector<Spaceship*> ModuleBehaviour::GetSpaceshipsByScore()
+{
+	std::vector<Spaceship*> ret = {};
+	for (int i = 0; i < MAX_CLIENTS; ++i)
+	{
+		auto object = App->modGameObject->gameObjects[i];
+		if ((object.behaviour != NULL) && (object.behaviour->type() == BehaviourType::Spaceship))
+		{
+			ret.push_back((Spaceship*)object.behaviour);
+		}
+	}
+	std::sort(ret.begin(), ret.end(), ModuleBehaviour::IsScoreHigher);
+	return ret;
+}
+
 Behaviour *ModuleBehaviour::addBehaviour(BehaviourType behaviourType, GameObject *parentGameObject)
 {
 	switch (behaviourType)
@@ -116,7 +132,7 @@ Behaviour *ModuleBehaviour::addBehaviour(BehaviourType behaviourType, GameObject
 	case BehaviourType::Spaceship:
 		return addSpaceship(parentGameObject);
 	case BehaviourType::Laser:
-		return addLaser(parentGameObject);
+		return addLaser(parentGameObject, nullptr);
 	case BehaviourType::Asteroid:
 		return addAsteroid(parentGameObject);
 	default:
@@ -145,7 +161,7 @@ Spaceship *ModuleBehaviour::addSpaceship(GameObject *parentGameObject)
 	return nullptr;
 }
 
-Laser *ModuleBehaviour::addLaser(GameObject *parentGameObject)
+Laser *ModuleBehaviour::addLaser(GameObject *parentGameObject, GameObject* emitter)
 {
 	for (Laser &behaviour : lasers)
 	{
@@ -153,6 +169,7 @@ Laser *ModuleBehaviour::addLaser(GameObject *parentGameObject)
 		{
 			behaviour = {};
 			behaviour.gameObject = parentGameObject;
+			behaviour.emitter = emitter;
 			parentGameObject->behaviour = &behaviour;
 			return &behaviour;
 		}

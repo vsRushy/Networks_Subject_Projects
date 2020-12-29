@@ -12,13 +12,21 @@ public:
 
 	Behaviour *			addBehaviour(BehaviourType behaviourType, GameObject *parentGameObject);
 	Spaceship *			addSpaceship(GameObject *parentGameObject);
-	Laser *				addLaser(GameObject *parentGameObject);
+	Laser *				addLaser(GameObject *parentGameObject, GameObject* emitter);
 	Asteroid *		addAsteroid(GameObject* parentGameObject);
 
 
 	// Gameplay functions 
 	void AsteroidRain();
 	void SpawnAsteroid();
+
+
+	static bool IsScoreHigher(const Spaceship* s1, const Spaceship* s2)
+	{
+		return s1->myScore > s2->myScore;
+	};
+
+	std::vector<Spaceship*>GetSpaceshipsByScore();
 
 private:
 

@@ -6,6 +6,8 @@ enum class BehaviourType : uint8;
 struct Behaviour
 {
 	GameObject *gameObject = nullptr;
+	GameObject* emitter = nullptr; // for the laser, to know the player that launched it
+
 	bool isServer = false;
 	bool isLocalPlayer = false;
 
@@ -64,6 +66,10 @@ struct Spaceship : public Behaviour
 	int num_weapons = 3;
 
 	GameObject *lifebar = nullptr;
+
+	uint8 myScore = 0;
+
+	void ScoreDeath(GameObject* killer);
 
 	BehaviourType type() const override { return BehaviourType::Spaceship; }
 

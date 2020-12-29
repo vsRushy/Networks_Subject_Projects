@@ -2,6 +2,8 @@
 
 struct GameObject
 {
+	std::string playerName = "Pepito";
+
 	uint32 id;
 
 	// TODO (custom) (interpolation): Interpolation component
@@ -53,6 +55,8 @@ private:
 	void operator delete (void *obj) = delete;
 };
 
+struct Spaceship;
+struct Behaviour;
 class ModuleGameObject : public Module
 {
 public:
@@ -76,7 +80,6 @@ public:
 	static void Destroy(GameObject * gameObject, float delaySeconds);
 
 	GameObject gameObjects[MAX_GAME_OBJECTS] = {};
-
 
 private:
 
