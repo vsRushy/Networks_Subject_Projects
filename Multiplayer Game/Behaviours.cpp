@@ -293,12 +293,14 @@ void Spaceship::write(OutputMemoryStream & packet)
 {
 	packet << hitPoints;
 	packet << myScore;
+	packet << weapon;
 }
 
 void Spaceship::read(const InputMemoryStream & packet)
 {
 	packet >> hitPoints;
 	packet >> myScore;
+	packet >> weapon;
 }
 
 

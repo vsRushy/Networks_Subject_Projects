@@ -16,6 +16,9 @@ public:
 	Asteroid *		addAsteroid(GameObject* parentGameObject);
 
 
+	// Get Behaviour
+	Spaceship* getBehaviourSpaceship(GameObject* parentGameObject);
+
 	// Gameplay functions 
 	void AsteroidRain();
 	void SpawnAsteroid();

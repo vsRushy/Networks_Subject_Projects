@@ -49,6 +49,21 @@ void ModuleBehaviour::ServerUpdate() // called from networking server update
 	// AsteroidRain();
 }
 
+Spaceship* ModuleBehaviour::getBehaviourSpaceship(GameObject* parentGameObject)
+{
+	Spaceship* spaceship = nullptr;
+
+	for (Spaceship& behaviour : spaceships)
+	{
+		if (behaviour.gameObject == parentGameObject)
+		{
+			spaceship = &behaviour;
+		}
+	}
+
+	return spaceship;
+}
+
 void ModuleBehaviour::AsteroidRain()
 {
 

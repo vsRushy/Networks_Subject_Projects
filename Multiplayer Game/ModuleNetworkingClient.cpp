@@ -97,7 +97,14 @@ void ModuleNetworkingClient::onGui()
 			ImGui::Text("Input:");
 			ImGui::InputFloat("Delivery interval (s)", &inputDeliveryIntervalSeconds, 0.01f, 0.1f, 4);
 
+			// Client stats
+			if (ImGui::Begin("Stats"))
+			{
+				Spaceship* spaceship = App->modBehaviour->getBehaviourSpaceship(playerGameObject);
+				ImGui::Text("Weapon: %d", spaceship->weapon);
+			}
 
+			ImGui::End();
 		}
 	}
 }
