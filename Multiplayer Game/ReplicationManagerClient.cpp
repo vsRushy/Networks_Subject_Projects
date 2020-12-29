@@ -21,7 +21,7 @@ void ReplicationManagerClient::read(const InputMemoryStream& packet) const
 			gameObject = App->modGameObject->Instantiate();
 			App->modLinkingContext->registerNetworkGameObjectWithNetworkId(gameObject, replicationCommand.networkId);
 
-			packet >> gameObject->position.x >> gameObject->position.y >>
+			packet >> gameObject->playerName >> gameObject->position.x >> gameObject->position.y >>
 				gameObject->size.x >> gameObject->size.y >>
 				gameObject->angle >> gameObject->tag >>
 				gameObject->networkInterpolationEnabled;
