@@ -231,7 +231,7 @@ bool ModuleNetworking::gui()
 
 				for (const auto& s : orderedSpaceships)
 				{
-					ImGui::Text("Name: %s | Weapon: %d", s->gameObject->playerName.c_str(), s->weapon);
+					ImGui::Text("Name: %s | Weapon: %d | Hitpoints: %d", s->gameObject->playerName.c_str(), s->weapon, s->hitPoints);
 				}
 			}
 

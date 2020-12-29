@@ -101,7 +101,7 @@ void ModuleNetworkingClient::onGui()
 			if (ImGui::Begin("Stats"))
 			{
 				Spaceship* spaceship = App->modBehaviour->getBehaviourSpaceship(playerGameObject);
-				ImGui::Text("Weapon: %d", spaceship->weapon);
+				ImGui::Text("Weapon: %d | Hitpoints: %d", spaceship->weapon, spaceship->hitPoints);
 			}
 
 			ImGui::End();
