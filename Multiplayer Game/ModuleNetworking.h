@@ -112,6 +112,14 @@ private:
 	SimulatedPacket *pendingSimulatedPackets = nullptr;
 	RandomNumberGenerator simulatedRandom;
 	uint32 pendingSimulatedPacketsCount = 0;
+
+	// Gameplay
+	struct HighestScore
+	{
+		std::string playerName;
+		uint8 score;
+	} highestScore;
+
 };
 
 void NetworkDisconnect();

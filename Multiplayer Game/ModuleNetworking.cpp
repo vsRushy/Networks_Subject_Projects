@@ -213,6 +213,29 @@ bool ModuleNetworking::gui()
 		{
 			auto orderedSpaceships = App->modBehaviour->GetSpaceshipsByScore();
 
+			// no highest score yet
+			if (highestScore.playerName.empty() == true)
+			{
+				// high score ready
+				if ((orderedSpaceships.empty() == false) && (orderedSpaceships.at(0)->myScore > 0))
+				{
+					highestScore.score = orderedSpaceships.at(0)->myScore;
+					highestScore.playerName = orderedSpaceships.at(0)->gameObject->playerName;
+				}
+			}
+			else if (orderedSpaceships.at(0)->myScore > highestScore.score) // high score ready, higher than current
+			{
+				highestScore.score = orderedSpaceships.at(0)->myScore;
+				highestScore.playerName = orderedSpaceships.at(0)->gameObject->playerName;
+			}
+
+			// highest recorded score in session
+			if (highestScore.playerName.empty() == false)
+			{
+				ImGui::Text("Highest = %s: %d", highestScore.playerName.c_str(), highestScore.score);
+			}
+
+			// all scores
 			for (auto& s : orderedSpaceships)
 			{
 				ImGui::Text("%s: %d", s->gameObject->playerName.c_str(), s->myScore);
