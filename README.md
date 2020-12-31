@@ -45,7 +45,7 @@
 
 * **Contributor:** Marc.
 
-* **Achieved:** Completely.
+* **Achieved:** Partially.
 
 * **Description:**
 
