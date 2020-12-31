@@ -25,7 +25,10 @@
 
 ## Contributions
 
+* [Gerard Marcos]
 
+* [Marc Doctor]
+Delivery manager basic sequence numbers, scoreboard, respawn player
 
 ## License
 
