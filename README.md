@@ -57,6 +57,12 @@
 
 * **Description:** Instead of sendind the position and angle of the player each time a packet is sent, we can go further and perform an interpolation between these values. Interpolation can be done because we send a packet each X seconds and, thus, we can do an interpolation so that we have a smooth movement each frame. The system is currently disabled as there are some problems regarding the interpolation operations, such as stuttering.
 
+### Gameplay
+
+* **Feature:** Scoreboard. **Contributor:** Marc.
+
+* **Feature:** Player Respawn. **Contributor:** Marc.
+
 ## Instructions
 
 * **1.** Download the latest release [here](https://github.com/vsRushy/Networks_Subject_Projects/releases)
