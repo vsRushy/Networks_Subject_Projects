@@ -48,6 +48,7 @@
 * **Achieved:** Partially.
 
 * **Description:**
+The purpose of the delivery manager is to keep track of network packets in a way that each one has a sequence number assigned so that we can take into account packets drops, give acknowledgments when a packet is received by the server...
 
 ### Entity Interpolation
 
