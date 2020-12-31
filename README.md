@@ -59,6 +59,20 @@
 
 // TODO gameplay contributions Delivery manager basic sequence numbers, scoreboard, respawn player
 
+## Instructions
+
+* **1.** Download the latest release [here](https://github.com/vsRushy/Networks_Subject_Projects/releases)
+
+* **2.** Unzip the file you just downloaded.
+
+* **3.** Execute Networks.exe.
+
+* **4.** Press on the "Start cerver" button on the "Main Menu" window.
+
+* **5.** Press on the "Connect to server" button on the "Main Menu" window. Don't forget to write your desired username on the textbox. NOTE: you can repeat this step as many clients as you want.
+
+* **Disclaimer:** Don't modify any of the files or otherwise the application might not work properly or not work at all.
+
 ## License
 
 MIT License
