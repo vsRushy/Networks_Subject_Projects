@@ -63,6 +63,10 @@
 
 * **Feature:** Player Respawn. **Contributor:** Marc.
 
+* **Feature:** Weapons. **Contributor:** Gerard.
+
+* **Feature:** Player stats. **Contributor:** Gerard.
+
 ## Instructions
 
 * **1.** Download the latest release [here](https://github.com/vsRushy/Networks_Subject_Projects/releases)
