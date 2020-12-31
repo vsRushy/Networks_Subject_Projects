@@ -25,10 +25,39 @@
 
 ## Contributions
 
-* [Gerard Marcos]
+### Client/Server Virtual Connection
 
-* [Marc Doctor]
-Delivery manager basic sequence numbers, scoreboard, respawn player
+* **Contributors:** Gerard and Marc.
+
+* **Achieved:** Completely.
+
+* **Description:** The application supports robustly a system which allows a server creation, and the clients are able to join the server successfully. The server and clients have an ID to identify them, and the system also handles disconnections. Naturally, if the server is shut down, all the clients will be disconnected, for instance.
+
+### World State Replication
+
+* **Contributor:** Gerard.
+
+* **Achieved:** Completely.
+
+* **Description:**
+
+### Delivery Manager
+
+* **Contributor:** Marc.
+
+* **Achieved:** Completely.
+
+* **Description:**
+
+### Entity Interpolation
+
+* **Contributors:** Gerard and Marc.
+
+* **Achieved:** Partially.
+
+* **Description:**
+
+// TODO gameplay contributions Delivery manager basic sequence numbers, scoreboard, respawn player
 
 ## License
 
