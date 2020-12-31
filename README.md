@@ -39,7 +39,7 @@
 
 * **Achieved:** Completely.
 
-* **Description:**
+* **Description:** The main objective of this subsystem is to replicate the state of the world from the server to all clients. In essence, an unordered map of replication commands, with its correspondant id, is stored and being sent to all clients. Each replication command has three types: Create, Update, and Destroy.
 
 ### Delivery Manager
 
@@ -55,9 +55,7 @@
 
 * **Achieved:** Partially.
 
-* **Description:**
-
-// TODO gameplay contributions Delivery manager basic sequence numbers, scoreboard, respawn player
+* **Description:** Instead of sendind the position and angle of the player each time a packet is sent, we can go further and perform an interpolation between these values. Interpolation can be done because we send a packet each X seconds and, thus, we can do an interpolation so that we have a smooth movement each frame. The system is currently disabled as there are some problems regarding the interpolation operations, such as stuttering.
 
 ## Instructions
 
