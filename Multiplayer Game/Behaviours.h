@@ -59,6 +59,8 @@ struct Spaceship : public Behaviour
 		DIAGONALS,
 	};
 
+	bool dead;
+
 	static const uint8 MAX_HIT_POINTS = 5;
 	uint8 hitPoints = MAX_HIT_POINTS;
 
@@ -68,6 +70,8 @@ struct Spaceship : public Behaviour
 	GameObject *lifebar = nullptr;
 
 	uint8 myScore = 0;
+
+	void Respawn();
 
 	void ScoreDeath(GameObject* killer);
 
@@ -86,6 +90,7 @@ struct Spaceship : public Behaviour
 	void write(OutputMemoryStream &packet) override;
 
 	void read(const InputMemoryStream &packet) override;
+
 };
 
 struct Asteroid : public Behaviour

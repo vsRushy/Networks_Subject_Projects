@@ -262,7 +262,8 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 					ScoreDeath(c2.gameObject->behaviour->emitter); // laser's emitter aka spaceships' object
 
 				// Destroy
-				NetworkDestroy(gameObject);
+				// NetworkDestroy(gameObject);
+				Respawn();
 			}
 			
 			GameObject *explosion = NetworkInstantiate();
@@ -287,6 +288,24 @@ void Spaceship::onCollisionTriggered(Collider &c1, Collider &c2)
 			App->modSound->playAudioClip(App->modResources->audioClipExplosion);
 		}
 	}
+}
+
+void Spaceship::Respawn()
+{
+	// reset life
+	hitPoints = MAX_HIT_POINTS;
+
+	// reset score
+	myScore = 0;
+
+	// reset position
+	vec2 initialPosition = 200.0f * vec2{ Random.next() - 0.5f, Random.next() - 0.5f };
+	float initialAngle = 360.0f * Random.next();
+	gameObject->position = initialPosition;
+	gameObject->angle = initialAngle;
+
+	// update
+	NetworkUpdate(gameObject);
 }
 
 void Spaceship::write(OutputMemoryStream & packet)
